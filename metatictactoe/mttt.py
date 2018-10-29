@@ -31,6 +31,7 @@ class MetaTicTacToe:
 
         if self.assert_board_winner(fd, fr):
             # The Board has already finished
+            self._next = None
             return None
 
         self._next = (fd, fr)

@@ -4,10 +4,11 @@ import arcade
 import time
 from mttt import MetaTicTacToe, WrongBoardError, FieldTakenError
 
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 700
+SCREEN_WIDTH = 900
+SCREEN_HEIGHT = 800
+META_BOARD_SIZE = 500
 
-MARGIN = 5
+MARGIN = 20
 
 COLOR_VALID = 242, 250, 234
 COLOR_INVALID = 250, 234, 234
@@ -21,16 +22,15 @@ class GameUI(arcade.Window):
     game_start = None
     game_end = None
 
-    nxt_valid = None
+    nxt_legal = None
 
     def __init__(self, width, height):
         super().__init__(width, height, 'Meta Tic Tac Toe')
 
         arcade.set_background_color(arcade.color.WHITE)
 
-        self.game_area_size = 600
-        self.game_area_x = self.width - self.game_area_size - MARGIN
-        self.game_area_y = self.height - self.game_area_size - MARGIN
+        self.game_area_x = self.width - META_BOARD_SIZE - MARGIN - 30
+        self.game_area_y = self.height - META_BOARD_SIZE - MARGIN - 30
 
         self.info_x = MARGIN
         self.info_y = self.height - 15 - MARGIN
@@ -58,31 +58,47 @@ class GameUI(arcade.Window):
 
     def draw_game_area(self):
         # Draw an outline around the game area
-        board_x_center = self.game_area_x + self.game_area_size / 2
-        board_y_center = self.game_area_y + self.game_area_size / 2
+        board_x_center = self.game_area_x + META_BOARD_SIZE / 2
+        board_y_center = self.game_area_y + META_BOARD_SIZE / 2
         arcade.draw_rectangle_outline(board_x_center, board_y_center,
-                                      self.game_area_size, self.game_area_size,
+                                      META_BOARD_SIZE, META_BOARD_SIZE,
                                       arcade.color.GRAY_BLUE)
 
         # Draw the meta board
-        self.draw_board(self.game_area_x, self.game_area_y, self.game_area_size, arcade.color.BLACK)
+        self.draw_board(self.game_area_x, self.game_area_y, META_BOARD_SIZE, arcade.color.BLACK)
 
         # Draw the boards
-        board_size = self.game_area_size // 3
+        board_size = META_BOARD_SIZE // 3
         for x in range(self.game_area_x,
-                       self.game_area_x + self.game_area_size,
-                       self.game_area_size // 3):
+                       self.game_area_x + META_BOARD_SIZE - board_size,
+                       board_size):
             for y in range(self.game_area_y,
-                           self.game_area_y + self.game_area_size,
-                           self.game_area_size // 3):
-                color = self.get_bg_color_for_board(x, y)
+                           self.game_area_y + META_BOARD_SIZE - board_size,
+                           board_size):
+
+                bd, br, fd, fr = self.get_grid_coordinates(x, y)
+                color = self.board_color(bd, br)
                 self.draw_board(x, y, board_size, arcade.color.GRAY_BLUE, color)
 
-    def get_bg_color_for_board(self, x, y):
-        # Convert position to grid coordinates
-        bd, br, *_ = self.get_grid_coordinates(x, y)
+                # Check if the board was finished
+                content = self.mttt_board[bd][br]
+                if type(content) is not list:
+                    # TODO draw full won board
+                    continue
 
-        if not self.nxt_valid or self.nxt_valid == (bd, br):
+                field_size = board_size // 3
+                # Draw field contents
+                for fx in range(x, x + board_size - field_size, field_size):
+                    for fy in range(y, y + board_size - field_size, field_size):
+                        fx_center = fx + field_size // 2
+                        fy_center = fy + field_size // 2
+                        a, b, c, d = self.get_grid_coordinates(fx_center, fy_center)
+                        content = self.mttt_board[a][b][c][d]
+                        if content:
+                            arcade.draw_text(content, fx_center, fy_center, arcade.color.BLACK)
+
+    def board_color(self, bd, br):
+        if not self.nxt_legal or self.nxt_legal == (bd, br):
             return COLOR_VALID
         return COLOR_INVALID
 
@@ -163,13 +179,13 @@ class GameUI(arcade.Window):
         try:
             nxt = self.mttt_board.mark(self.active_player, *cords)
         except WrongBoardError:
-            print(f'Must play in board: {self.nxt_valid}')
+            print(f'Must play in board: {self.nxt_legal}')
             return
         except FieldTakenError:
-            print(f'Field {self.nxt_valid} id already marked')
+            print(f'Field {self.nxt_legal} id already marked')
             return
 
-        self.nxt_valid = nxt
+        self.nxt_legal = nxt
         self.players.put(self.active_player)
         self.active_player = self.players.get()
 
@@ -177,21 +193,21 @@ class GameUI(arcade.Window):
             self.game_start = time.time()
 
     def game_area_hit(self, x, y):
-        if x < self.game_area_x or x > self.game_area_x + self.game_area_size:
+        if x < self.game_area_x or x > self.game_area_x + META_BOARD_SIZE:
             return False
-        if y < self.game_area_y or y > self.game_area_y + self.game_area_size:
+        if y < self.game_area_y or y > self.game_area_y + META_BOARD_SIZE:
             return False
         return True
 
     def get_grid_coordinates(self, x, y):
         # Get board
-        board_size = self.game_area_size // 3
+        board_size = META_BOARD_SIZE // 3
         column, row = self.get_cell_from_coordinates(x, y,
                                                      self.game_area_x, self.game_area_y,
                                                      board_size)
         # Get Field
         board_x = self.game_area_x + column * board_size
-        board_y = self.game_area_y + (self.game_area_size - board_size) - row * board_size
+        board_y = self.game_area_y + (META_BOARD_SIZE - board_size) - row * board_size
         field_column, field_row = self.get_cell_from_coordinates(x, y,
                                                                  board_x, board_y,
                                                                  board_size // 3)
