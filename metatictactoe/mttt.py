@@ -18,23 +18,25 @@ class MetaTicTacToe:
         else:
             self._state = self._make_metaboard()
 
-    def mark(self, marker: str, db: int, br: int, fd: int, fr: int):
-        if self._next and self._next != (db, br):
+    def mark(self, marker: str, bd: int, br: int, fd: int, fr: int):
+        if self._next and self._next != (bd, br):
             # Player not checking in the right board
             raise WrongBoardError
 
-        if self._state[db][br][fd][fr]:
+        if self.assert_board_winner(bd, br):
+            # The Board has already finished
+            raise WrongBoardError
+
+        if self._state[bd][br][fd][fr]:
             # The field is already taken
             raise FieldTakenError
 
-        self._state[db][br][fd][fr] = marker
-
-        if self.assert_board_winner(fd, fr):
-            # The Board has already finished
-            self._next = None
-            return None
-
+        self._state[bd][br][fd][fr] = marker
         self._next = (fd, fr)
+
+        if self.assert_board_winner(bd, br):
+            self._next = None
+
         return self._next
 
     def assert_board_winner(self, bd, br):

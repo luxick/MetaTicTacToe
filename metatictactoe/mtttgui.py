@@ -81,8 +81,8 @@ class GameUI(arcade.Window):
                 self.draw_board(x, y, board_size, arcade.color.GRAY_BLUE, color)
 
                 # Check if the board was finished
-                content = self.mttt_board[bd][br]
-                if type(content) is not list:
+                winner = self.mttt_board.assert_board_winner(bd, br)
+                if winner:
                     # TODO draw full won board
                     continue
 
