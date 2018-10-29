@@ -58,8 +58,8 @@ class TikTakToeTester(unittest.TestCase):
         A player must check in the correct board corresponding to the field checked by the last player
         """
         game = MetaTicTacToe()
-        game.check(self.p1, 0, 0, 1, 1)
-        res = game.check(self.p2, 2, 2, 1, 1,)
+        game.mark(self.p1, 0, 0, 1, 1)
+        res = game.mark(self.p2, 2, 2, 1, 1, )
         self.assertEqual('Invalid Move', res)
 
     def test_victory_column(self):

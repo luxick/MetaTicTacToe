@@ -1,3 +1,5 @@
+from queue import Queue
+
 import arcade
 import time
 from mttt import MetaTicTacToe
@@ -10,11 +12,13 @@ MARGIN = 5
 
 class GameUI(arcade.Window):
     mttt_board = None
-    player_one = "X"
-    player_two = "O"
+    players = None
+    active_player = None
 
     game_start = None
     game_end = None
+
+    nxt_valid = None
 
     def __init__(self, width, height):
         super().__init__(width, height, 'Meta Tic Tac Toe')
@@ -25,12 +29,17 @@ class GameUI(arcade.Window):
         self.game_area_x = self.width - self.game_area_size - MARGIN
         self.game_area_y = self.height - self.game_area_size - MARGIN
 
-        self.clock_width = MARGIN
-        self.clock_height = self.height - 15 - MARGIN
+        self.info_x = MARGIN
+        self.info_y = self.height - 15 - MARGIN
 
     def setup(self):
         # Create your sprites and sprite lists here
         self.mttt_board = MetaTicTacToe()
+        self.players = Queue(2)
+        self.players.put('X')
+        self.players.put('O')
+
+        self.active_player = self.players.get()
 
     def on_draw(self):
         """
@@ -41,6 +50,7 @@ class GameUI(arcade.Window):
         arcade.start_render()
 
         self.draw_clock()
+        self.draw_active_player_display()
         self.draw_game_area()
 
     def draw_game_area(self):
@@ -87,8 +97,12 @@ class GameUI(arcade.Window):
             diff = int(time.time() - self.game_start)
             minutes, seconds = diff // 60, diff % 60
         arcade.draw_text('Time: {:02}:{:02}'.format(minutes, seconds),
-                         self.clock_width,
-                         self.clock_height,
+                         self.info_x, self.info_y,
+                         arcade.color.BLACK)
+
+    def draw_active_player_display(self):
+        arcade.draw_text(f'Current Player: {self.active_player}',
+                         self.info_x, self.info_y - 20,
                          arcade.color.BLACK)
 
     def update(self, delta_time):
@@ -126,7 +140,16 @@ class GameUI(arcade.Window):
         if not self.game_area_hit(x, y):
             return
 
-        br, bc, fr, fc = self.get_grid_coordinates(x, y)
+        cords = self.get_grid_coordinates(x, y)
+        nxt = self.mttt_board.mark(self.active_player, *cords)
+
+        if nxt == "Invalid Move":
+            print(f'Must play in board: {self.nxt_valid}')
+            return
+
+        self.nxt_valid = nxt
+        self.players.put(self.active_player)
+        self.active_player = self.players.get()
 
         if not self.game_start:
             self.game_start = time.time()
@@ -151,10 +174,7 @@ class GameUI(arcade.Window):
                                                                  board_x, board_y,
                                                                  board_size // 3)
 
-        print(f'Coordinates: (x={x}, y={y})\n'
-              f'Board: (row={row}, column={column})\n'
-              f'Field: (row={field_row}, column={field_column})\n'
-              f'MTTTObject: (game[{row}][{column}][{field_row}][{field_column}])\n')
+        print(f'Hit Board/Field: ({row}, {column}) ({field_row}, {field_column})\n')
 
         return row, column, field_row, field_column
 

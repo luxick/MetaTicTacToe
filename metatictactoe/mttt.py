@@ -10,7 +10,7 @@ class MetaTicTacToe:
         else:
             self._state = self._make_metaboard()
 
-    def check(self, marker: str, db: int, br: int, fd: int, fr: int):
+    def mark(self, marker: str, db: int, br: int, fd: int, fr: int):
         if self._next and self._next != (db, br):
             # Player not checking in the right board
             return "Invalid Move"
