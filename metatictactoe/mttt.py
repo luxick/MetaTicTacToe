@@ -1,6 +1,14 @@
 import copy
 
 
+class WrongBoardError(Exception):
+    pass
+
+
+class FieldTakenError(Exception):
+    pass
+
+
 class MetaTicTacToe:
     _next = None
 
@@ -13,11 +21,11 @@ class MetaTicTacToe:
     def mark(self, marker: str, db: int, br: int, fd: int, fr: int):
         if self._next and self._next != (db, br):
             # Player not checking in the right board
-            return "Invalid Move"
+            raise WrongBoardError
 
         if self._state[db][br][fd][fr]:
             # The field is already taken
-            return "Invalid Move"
+            raise FieldTakenError
 
         self._state[db][br][fd][fr] = marker
 

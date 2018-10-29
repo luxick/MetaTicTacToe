@@ -2,12 +2,15 @@ from queue import Queue
 
 import arcade
 import time
-from mttt import MetaTicTacToe
+from mttt import MetaTicTacToe, WrongBoardError, FieldTakenError
 
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 700
 
 MARGIN = 5
+
+COLOR_VALID = 242, 250, 234
+COLOR_INVALID = 250, 234, 234
 
 
 class GameUI(arcade.Window):
@@ -72,10 +75,24 @@ class GameUI(arcade.Window):
             for y in range(self.game_area_y,
                            self.game_area_y + self.game_area_size,
                            self.game_area_size // 3):
-                self.draw_board(x, y, board_size, arcade.color.GRAY_BLUE)
+                color = self.get_bg_color_for_board(x, y)
+                self.draw_board(x, y, board_size, arcade.color.GRAY_BLUE, color)
+
+    def get_bg_color_for_board(self, x, y):
+        # Convert position to grid coordinates
+        bd, br, *_ = self.get_grid_coordinates(x, y)
+
+        if not self.nxt_valid or self.nxt_valid == (bd, br):
+            return COLOR_VALID
+        return COLOR_INVALID
 
     @staticmethod
-    def draw_board(pos_x, pos_y, size, color):
+    def draw_board(pos_x, pos_y, size, color, bg_color=None):
+        # Draw background
+        arcade.draw_rectangle_filled(pos_x + size // 2,
+                                     pos_y + size // 2,
+                                     size, size,
+                                     bg_color if bg_color else arcade.color.WHITE)
         # Draw vertical lines
         for x in range(pos_x,
                        pos_x + size,
@@ -141,10 +158,15 @@ class GameUI(arcade.Window):
             return
 
         cords = self.get_grid_coordinates(x, y)
-        nxt = self.mttt_board.mark(self.active_player, *cords)
+        print(f'Hit Board/Field: ({cords[0]}, {cords[1]}) ({cords[2]}, {cords[3]})\n')
 
-        if nxt == "Invalid Move":
+        try:
+            nxt = self.mttt_board.mark(self.active_player, *cords)
+        except WrongBoardError:
             print(f'Must play in board: {self.nxt_valid}')
+            return
+        except FieldTakenError:
+            print(f'Field {self.nxt_valid} id already marked')
             return
 
         self.nxt_valid = nxt
@@ -173,9 +195,6 @@ class GameUI(arcade.Window):
         field_column, field_row = self.get_cell_from_coordinates(x, y,
                                                                  board_x, board_y,
                                                                  board_size // 3)
-
-        print(f'Hit Board/Field: ({row}, {column}) ({field_row}, {field_column})\n')
-
         return row, column, field_row, field_column
 
     @staticmethod
