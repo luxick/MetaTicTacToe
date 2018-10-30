@@ -174,7 +174,7 @@ class GameUI(arcade.Window):
             return
 
         cords = self.get_grid_coordinates(x, y)
-        print(f'Hit Board/Field: ({cords[0]}, {cords[1]}) ({cords[2]}, {cords[3]})\n')
+        print(f'Hit Board/Field: ({cords[0]}, {cords[1]}) ({cords[2]}, {cords[3]})')
 
         try:
             nxt = self.mttt_board.mark(self.active_player, *cords)

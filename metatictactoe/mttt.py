@@ -35,6 +35,11 @@ class MetaTicTacToe:
         self._next = (fd, fr)
 
         if self.assert_board_winner(bd, br):
+            # The board was finished by this mark
+            self._next = None
+
+        if self.assert_board_winner(fd, fr):
+            # The next player would have to play in a finished board
             self._next = None
 
         return self._next
