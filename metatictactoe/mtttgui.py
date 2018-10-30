@@ -6,9 +6,9 @@ from mttt import MetaTicTacToe, WrongBoardError, FieldTakenError
 
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 800
-META_BOARD_SIZE = 500
+META_BOARD_SIZE = 400
 
-MARGIN = 20
+MARGIN = 10
 
 COLOR_VALID = 242, 250, 234
 COLOR_INVALID = 250, 234, 234
@@ -29,8 +29,8 @@ class GameUI(arcade.Window):
 
         arcade.set_background_color(arcade.color.WHITE)
 
-        self.game_area_x = self.width - META_BOARD_SIZE - MARGIN - 30
-        self.game_area_y = self.height - META_BOARD_SIZE - MARGIN - 30
+        self.meta_x = self.width - META_BOARD_SIZE - MARGIN - 30
+        self.meta_y = self.height - META_BOARD_SIZE - MARGIN - 30
 
         self.info_x = MARGIN
         self.info_y = self.height - 15 - MARGIN
@@ -57,25 +57,17 @@ class GameUI(arcade.Window):
         self.draw_game_area()
 
     def draw_game_area(self):
-        # Draw an outline around the game area
-        board_x_center = self.game_area_x + META_BOARD_SIZE / 2
-        board_y_center = self.game_area_y + META_BOARD_SIZE / 2
-        arcade.draw_rectangle_outline(board_x_center, board_y_center,
-                                      META_BOARD_SIZE, META_BOARD_SIZE,
-                                      arcade.color.GRAY_BLUE)
-
         # Draw the boards
         board_size = META_BOARD_SIZE // 3
-        for x in range(self.game_area_x,
-                       self.game_area_x + META_BOARD_SIZE - board_size,
+        for x in range(self.meta_x,
+                       self.meta_x + META_BOARD_SIZE - board_size,
                        board_size):
-            for y in range(self.game_area_y,
-                           self.game_area_y + META_BOARD_SIZE - board_size,
+            for y in range(self.meta_y,
+                           self.meta_y + META_BOARD_SIZE - board_size,
                            board_size):
 
                 bd, br, fd, fr = self.get_grid_coordinates(x, y)
                 color = self.board_color(bd, br)
-                self.draw_board(x, y, board_size, arcade.color.GRAY_BLUE, color)
 
                 # Check if the board was finished
                 winner = self.mttt_board.assert_board_winner(bd, br)
@@ -85,7 +77,11 @@ class GameUI(arcade.Window):
                                                  board_size, board_size,
                                                  arcade.color.WHITE)
                     self.draw_player_mark(winner, x, y, board_size)
+                    # Exit early if this board was already finished
                     continue
+
+                # Draw Fields
+                self.draw_board(x, y, board_size, arcade.color.GRAY_BLUE, color, line_padding=0.03)
 
                 field_size = board_size // 3
                 # Draw field contents
@@ -99,7 +95,15 @@ class GameUI(arcade.Window):
                             self.draw_player_mark(content, fx, fy, field_size)
 
         # Draw the meta board
-        self.draw_board(self.game_area_x, self.game_area_y, META_BOARD_SIZE, arcade.color.BLACK)
+        self.draw_board(self.meta_x, self.meta_y, META_BOARD_SIZE, arcade.color.BLACK, border_width=2)
+
+        # Draw an outline around the game area
+        arcade.draw_rectangle_outline(center_x=self.meta_x + META_BOARD_SIZE / 2,
+                                      center_y=self.meta_y + META_BOARD_SIZE / 2,
+                                      width=META_BOARD_SIZE,
+                                      height=META_BOARD_SIZE,
+                                      color=arcade.color.BLACK,
+                                      border_width=2)
 
     def board_color(self, bd, br):
         if not self.nxt_legal or self.nxt_legal == (bd, br):
@@ -135,26 +139,33 @@ class GameUI(arcade.Window):
                                        color=arcade.color.BLACK)
 
     @staticmethod
-    def draw_board(pos_x, pos_y, size, color, bg_color=None):
+    def draw_board(pos_x, pos_y, size, color, bg_color=None, line_padding=0, border_width=1):
         # Draw background
         if bg_color:
             arcade.draw_rectangle_filled(pos_x + size // 2,
                                          pos_y + size // 2,
                                          size, size, bg_color)
         # Draw vertical lines
-        for x in range(pos_x,
-                       pos_x + size,
-                       size // 3):
-            arcade.draw_line(x, pos_y,
-                             x, pos_y + size,
-                             color)
+        sub_size = size // 3
+        for x in range(pos_x + sub_size,
+                       pos_x + size - sub_size,
+                       sub_size):
+            arcade.draw_line(start_x=x,
+                             end_x=x,
+                             start_y=pos_y + size * line_padding,
+                             end_y=pos_y + size - (size * line_padding),
+                             color=color,
+                             border_width=border_width)
         # Draw horizontal lines
-        for y in range(pos_y,
-                       pos_y + size,
-                       size // 3):
-            arcade.draw_line(pos_x, y,
-                             pos_x + size, y,
-                             arcade.color.GRAY_BLUE)
+        for y in range(pos_y + sub_size,
+                       pos_y + size - sub_size,
+                       sub_size):
+            arcade.draw_line(start_x=pos_x + size * line_padding,
+                             start_y=y,
+                             end_x=pos_x + size - (size * line_padding),
+                             end_y=y,
+                             color=arcade.color.GRAY_BLUE,
+                             border_width=border_width)
 
     def draw_clock(self):
         minutes, seconds = 0, 0
@@ -224,9 +235,9 @@ class GameUI(arcade.Window):
             self.game_start = time.time()
 
     def game_area_hit(self, x, y):
-        if x < self.game_area_x or x > self.game_area_x + META_BOARD_SIZE:
+        if x < self.meta_x or x > self.meta_x + META_BOARD_SIZE:
             return False
-        if y < self.game_area_y or y > self.game_area_y + META_BOARD_SIZE:
+        if y < self.meta_y or y > self.meta_y + META_BOARD_SIZE:
             return False
         return True
 
@@ -234,11 +245,11 @@ class GameUI(arcade.Window):
         # Get board
         board_size = META_BOARD_SIZE // 3
         column, row = self.get_cell_from_coordinates(x, y,
-                                                     self.game_area_x, self.game_area_y,
+                                                     self.meta_x, self.meta_y,
                                                      board_size)
         # Get Field
-        board_x = self.game_area_x + column * board_size
-        board_y = self.game_area_y + (META_BOARD_SIZE - board_size) - row * board_size
+        board_x = self.meta_x + column * board_size
+        board_y = self.meta_y + (META_BOARD_SIZE - board_size) - row * board_size
         field_column, field_row = self.get_cell_from_coordinates(x, y,
                                                                  board_x, board_y,
                                                                  board_size // 3)
