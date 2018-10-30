@@ -64,9 +64,6 @@ class GameUI(arcade.Window):
                                       META_BOARD_SIZE, META_BOARD_SIZE,
                                       arcade.color.GRAY_BLUE)
 
-        # Draw the meta board
-        self.draw_board(self.game_area_x, self.game_area_y, META_BOARD_SIZE, arcade.color.BLACK)
-
         # Draw the boards
         board_size = META_BOARD_SIZE // 3
         for x in range(self.game_area_x,
@@ -83,7 +80,11 @@ class GameUI(arcade.Window):
                 # Check if the board was finished
                 winner = self.mttt_board.assert_board_winner(bd, br)
                 if winner:
-                    # TODO draw full won board
+                    arcade.draw_rectangle_filled(x + board_size // 2,
+                                                 y + board_size // 2,
+                                                 board_size, board_size,
+                                                 arcade.color.WHITE)
+                    self.draw_player_mark(winner, x, y, board_size)
                     continue
 
                 field_size = board_size // 3
@@ -95,7 +96,10 @@ class GameUI(arcade.Window):
                         a, b, c, d = self.get_grid_coordinates(fx_center, fy_center)
                         content = self.mttt_board[a][b][c][d]
                         if content:
-                            arcade.draw_text(content, fx_center, fy_center, arcade.color.BLACK)
+                            self.draw_player_mark(content, fx, fy, field_size)
+
+        # Draw the meta board
+        self.draw_board(self.game_area_x, self.game_area_y, META_BOARD_SIZE, arcade.color.BLACK)
 
     def board_color(self, bd, br):
         if not self.nxt_legal or self.nxt_legal == (bd, br):
@@ -103,12 +107,40 @@ class GameUI(arcade.Window):
         return COLOR_INVALID
 
     @staticmethod
+    def draw_player_mark(mark, x, y, size):
+        if mark == 'X':
+
+            x_left = x + size * 0.125
+            x_right = x_left + size * 0.75
+            y_low = y + size * 0.125
+            y_high = y_low + size * 0.75
+            arcade.draw_line(start_x=x_left,
+                             end_x=x_right,
+                             start_y=y_low,
+                             end_y=y_high,
+                             border_width=2,
+                             color=arcade.color.BLACK)
+
+            arcade.draw_line(start_x=x_left,
+                             end_x=x_right,
+                             start_y=y_high,
+                             end_y=y_low,
+                             border_width=2,
+                             color=arcade.color.BLACK)
+        if mark == 'O':
+            arcade.draw_circle_outline(center_x=x + size // 2,
+                                       center_y=y + size // 2,
+                                       radius=size * 0.4375,
+                                       border_width=2,
+                                       color=arcade.color.BLACK)
+
+    @staticmethod
     def draw_board(pos_x, pos_y, size, color, bg_color=None):
         # Draw background
-        arcade.draw_rectangle_filled(pos_x + size // 2,
-                                     pos_y + size // 2,
-                                     size, size,
-                                     bg_color if bg_color else arcade.color.WHITE)
+        if bg_color:
+            arcade.draw_rectangle_filled(pos_x + size // 2,
+                                         pos_y + size // 2,
+                                         size, size, bg_color)
         # Draw vertical lines
         for x in range(pos_x,
                        pos_x + size,
@@ -174,7 +206,6 @@ class GameUI(arcade.Window):
             return
 
         cords = self.get_grid_coordinates(x, y)
-        print(f'Hit Board/Field: ({cords[0]}, {cords[1]}) ({cords[2]}, {cords[3]})')
 
         try:
             nxt = self.mttt_board.mark(self.active_player, *cords)
