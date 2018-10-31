@@ -37,9 +37,12 @@ class GameUI(arcade.Window):
         super().__init__(width, height, 'Meta Tic Tac Toe v0.2', resizable=True)
         self.set_min_size(MIN_WIDTH, MIN_HEIGHT)
         arcade.set_background_color(arcade.color.WHITE)
+        self.background = None
 
     def setup(self):
         # Create your sprites and sprite lists here
+        self.background = arcade.load_texture("resources/background.jpg")
+
         self.mttt_board = MetaTicTacToe()
         self.players = Queue(2)
         self.players.put('X')
@@ -64,6 +67,13 @@ class GameUI(arcade.Window):
         # the screen to the background color, and erase what we drew last frame.
         arcade.start_render()
 
+        arcade.draw_texture_rectangle(center_x=self.width // 2,
+                                      center_y=self.height // 2,
+                                      width=self.width,
+                                      height=self.height,
+                                      texture=self.background,
+                                      repeat_count_x=1,
+                                      repeat_count_y=1)
         self.draw_game_area()
         self.draw_clock()
         self.draw_active_player_display()
@@ -134,20 +144,20 @@ class GameUI(arcade.Window):
                              end_x=x_right,
                              start_y=y_low,
                              end_y=y_high,
-                             border_width=2,
+                             border_width=4,
                              color=arcade.color.BLACK)
 
             arcade.draw_line(start_x=x_left,
                              end_x=x_right,
                              start_y=y_high,
                              end_y=y_low,
-                             border_width=2,
+                             border_width=4,
                              color=arcade.color.BLACK)
         if mark == 'O':
             arcade.draw_circle_outline(center_x=x + size // 2,
                                        center_y=y + size // 2,
                                        radius=size * 0.4375,
-                                       border_width=2,
+                                       border_width=3,
                                        color=arcade.color.BLACK)
 
     @staticmethod
