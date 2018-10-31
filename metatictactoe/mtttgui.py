@@ -4,11 +4,13 @@ import arcade
 import time
 from mttt import MetaTicTacToe, WrongBoardError, FieldTakenError
 
-SCREEN_WIDTH = 900
-SCREEN_HEIGHT = 800
-META_BOARD_SIZE = 400
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 
-MARGIN = 10
+MIN_WIDTH = 800
+MIN_HEIGHT = 600
+
+MARGIN = 30
 
 COLOR_VALID = 242, 250, 234
 COLOR_INVALID = 250, 234, 234
@@ -24,16 +26,17 @@ class GameUI(arcade.Window):
 
     nxt_legal = None
 
+    meta_x = 0
+    meta_y = 0
+    meta_size = 0
+
+    info_x = 0
+    info_y = 0
+
     def __init__(self, width, height):
-        super().__init__(width, height, 'Meta Tic Tac Toe')
-
+        super().__init__(width, height, 'Meta Tic Tac Toe v0.2', resizable=True)
+        self.set_min_size(MIN_WIDTH, MIN_HEIGHT)
         arcade.set_background_color(arcade.color.WHITE)
-
-        self.meta_x = self.width - META_BOARD_SIZE - MARGIN - 30
-        self.meta_y = self.height - META_BOARD_SIZE - MARGIN - 30
-
-        self.info_x = MARGIN
-        self.info_y = self.height - 15 - MARGIN
 
     def setup(self):
         # Create your sprites and sprite lists here
@@ -44,6 +47,17 @@ class GameUI(arcade.Window):
 
         self.active_player = self.players.get()
 
+    def on_resize(self, width, height):
+        super().on_resize(width, height)
+        self.meta_size = round(min(width, height) * 0.80)
+        self.meta_x = self.width - self.meta_size - MARGIN
+        self.meta_y = self.height - self.meta_size - MARGIN
+
+        print(self.meta_size // 3)
+
+        self.info_x = MARGIN
+        self.info_y = self.height - MARGIN - 17
+
     def on_draw(self):
         """
         Render the screen.
@@ -52,18 +66,18 @@ class GameUI(arcade.Window):
         # the screen to the background color, and erase what we drew last frame.
         arcade.start_render()
 
+        self.draw_game_area()
         self.draw_clock()
         self.draw_active_player_display()
-        self.draw_game_area()
 
     def draw_game_area(self):
         # Draw the boards
-        board_size = META_BOARD_SIZE // 3
+        board_size = self.meta_size // 3
         for x in range(self.meta_x,
-                       self.meta_x + META_BOARD_SIZE - board_size,
+                       self.meta_x + self.meta_size - board_size,
                        board_size):
             for y in range(self.meta_y,
-                           self.meta_y + META_BOARD_SIZE - board_size,
+                           self.meta_y + self.meta_size - board_size,
                            board_size):
 
                 bd, br, fd, fr = self.get_grid_coordinates(x, y)
@@ -95,13 +109,13 @@ class GameUI(arcade.Window):
                             self.draw_player_mark(content, fx, fy, field_size)
 
         # Draw the meta board
-        self.draw_board(self.meta_x, self.meta_y, META_BOARD_SIZE, arcade.color.BLACK, border_width=2)
+        self.draw_board(self.meta_x, self.meta_y, self.meta_size, arcade.color.BLACK, border_width=2)
 
         # Draw an outline around the game area
-        arcade.draw_rectangle_outline(center_x=self.meta_x + META_BOARD_SIZE / 2,
-                                      center_y=self.meta_y + META_BOARD_SIZE / 2,
-                                      width=META_BOARD_SIZE,
-                                      height=META_BOARD_SIZE,
+        arcade.draw_rectangle_outline(center_x=self.meta_x + self.meta_size / 2,
+                                      center_y=self.meta_y + self.meta_size / 2,
+                                      width=self.meta_size,
+                                      height=self.meta_size,
                                       color=arcade.color.BLACK,
                                       border_width=2)
 
@@ -139,7 +153,7 @@ class GameUI(arcade.Window):
                                        color=arcade.color.BLACK)
 
     @staticmethod
-    def draw_board(pos_x, pos_y, size, color, bg_color=None, line_padding=0, border_width=1):
+    def draw_board(pos_x, pos_y, size, color, bg_color=None, line_padding=0.0, border_width=1):
         # Draw background
         if bg_color:
             arcade.draw_rectangle_filled(pos_x + size // 2,
@@ -188,27 +202,6 @@ class GameUI(arcade.Window):
         need it.
         """
 
-    def on_key_press(self, key, key_modifiers):
-        """
-        Called whenever a key on the keyboard is pressed.
-
-        For a full list of keys, see:
-        http://arcade.academy/arcade.key.html
-        """
-        pass
-
-    def on_key_release(self, key, key_modifiers):
-        """
-        Called whenever the user lets off a previously pressed key.
-        """
-        pass
-
-    def on_mouse_motion(self, x, y, delta_x, delta_y):
-        """
-        Called whenever the mouse moves.
-        """
-        pass
-
     def on_mouse_press(self, x, y, button, key_modifiers):
         """
         Called when the user presses a mouse button.
@@ -235,21 +228,21 @@ class GameUI(arcade.Window):
             self.game_start = time.time()
 
     def game_area_hit(self, x, y):
-        if x < self.meta_x or x > self.meta_x + META_BOARD_SIZE:
+        if x < self.meta_x or x > self.meta_x + self.meta_size:
             return False
-        if y < self.meta_y or y > self.meta_y + META_BOARD_SIZE:
+        if y < self.meta_y or y > self.meta_y + self.meta_size:
             return False
         return True
 
     def get_grid_coordinates(self, x, y):
         # Get board
-        board_size = META_BOARD_SIZE // 3
+        board_size = self.meta_size // 3
         column, row = self.get_cell_from_coordinates(x, y,
                                                      self.meta_x, self.meta_y,
                                                      board_size)
         # Get Field
         board_x = self.meta_x + column * board_size
-        board_y = self.meta_y + (META_BOARD_SIZE - board_size) - row * board_size
+        board_y = self.meta_y + (self.meta_size - board_size) - row * board_size
         field_column, field_row = self.get_cell_from_coordinates(x, y,
                                                                  board_x, board_y,
                                                                  board_size // 3)
@@ -262,12 +255,6 @@ class GameUI(arcade.Window):
         # Flip row coordinate. 0, 0 should be top left
         row = abs(row - 2)
         return column, row
-
-    def on_mouse_release(self, x, y, button, key_modifiers):
-        """
-        Called when a user releases a mouse button.
-        """
-        pass
 
 
 def main():
