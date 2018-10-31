@@ -53,8 +53,6 @@ class GameUI(arcade.Window):
         self.meta_x = self.width - self.meta_size - MARGIN
         self.meta_y = self.height - self.meta_size - MARGIN
 
-        print(self.meta_size // 3)
-
         self.info_x = MARGIN
         self.info_y = self.height - MARGIN - 17
 
@@ -71,14 +69,12 @@ class GameUI(arcade.Window):
         self.draw_active_player_display()
 
     def draw_game_area(self):
-        # Draw the boards
+        # Draw the board outlines
         board_size = self.meta_size // 3
-        for x in range(self.meta_x,
-                       self.meta_x + self.meta_size - board_size,
-                       board_size):
-            for y in range(self.meta_y,
-                           self.meta_y + self.meta_size - board_size,
-                           board_size):
+        for num_x in range(0, 3):
+            for num_y in range(0, 3):
+                x = self.meta_x + num_x * board_size
+                y = self.meta_y + num_y * board_size
 
                 bd, br, fd, fr = self.get_grid_coordinates(x, y)
                 color = self.board_color(bd, br)
@@ -94,13 +90,15 @@ class GameUI(arcade.Window):
                     # Exit early if this board was already finished
                     continue
 
-                # Draw Fields
+                # Draw field outlines
                 self.draw_board(x, y, board_size, arcade.color.GRAY_BLUE, color, line_padding=0.03)
 
                 field_size = board_size // 3
                 # Draw field contents
-                for fx in range(x, x + board_size - field_size, field_size):
-                    for fy in range(y, y + board_size - field_size, field_size):
+                for num_fx in range(0, 3):
+                    for num_fy in range(0, 3):
+                        fx = x + num_fx * field_size
+                        fy = y + num_fy * field_size
                         fx_center = fx + field_size // 2
                         fy_center = fy + field_size // 2
                         a, b, c, d = self.get_grid_coordinates(fx_center, fy_center)
@@ -161,9 +159,8 @@ class GameUI(arcade.Window):
                                          size, size, bg_color)
         # Draw vertical lines
         sub_size = size // 3
-        for x in range(pos_x + sub_size,
-                       pos_x + size - sub_size,
-                       sub_size):
+        for num_x in range(0, 3):
+            x = pos_x + num_x * sub_size
             arcade.draw_line(start_x=x,
                              end_x=x,
                              start_y=pos_y + size * line_padding,
@@ -171,9 +168,8 @@ class GameUI(arcade.Window):
                              color=color,
                              border_width=border_width)
         # Draw horizontal lines
-        for y in range(pos_y + sub_size,
-                       pos_y + size - sub_size,
-                       sub_size):
+        for num_y in range(0, 3):
+            y = pos_y + num_y * sub_size
             arcade.draw_line(start_x=pos_x + size * line_padding,
                              start_y=y,
                              end_x=pos_x + size - (size * line_padding),
