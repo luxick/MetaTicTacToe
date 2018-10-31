@@ -1,7 +1,8 @@
-from queue import Queue
-
 import arcade
 import time
+
+from enum import Enum
+from queue import Queue
 from mttt import MetaTicTacToe, WrongBoardError, FieldTakenError
 
 SCREEN_WIDTH = 800
@@ -15,14 +16,17 @@ MARGIN = 30
 COLOR_VALID = 242, 250, 234
 COLOR_INVALID = 250, 234, 234
 
+class GameState(Enum):
+    Setup = 0
+    Running = 1
+    Finished = 2
 
 class GameUI(arcade.Window):
     mttt_board = None
     players = None
     active_player = None
 
-    game_start = None
-    game_end = None
+    game_state = GameState.Setup
 
     nxt_legal = None
 
@@ -50,6 +54,8 @@ class GameUI(arcade.Window):
 
         self.active_player = self.players.get()
 
+        self.game_state = GameState.Running
+
     def on_resize(self, width, height):
         super().on_resize(width, height)
         self.meta_size = round(min(width, height) * 0.80)
@@ -67,6 +73,7 @@ class GameUI(arcade.Window):
         # the screen to the background color, and erase what we drew last frame.
         arcade.start_render()
 
+        # Draw the background
         arcade.draw_texture_rectangle(center_x=self.width // 2,
                                       center_y=self.height // 2,
                                       width=self.width,
@@ -74,9 +81,19 @@ class GameUI(arcade.Window):
                                       texture=self.background,
                                       repeat_count_x=1,
                                       repeat_count_y=1)
-        self.draw_game_area()
-        self.draw_clock()
-        self.draw_active_player_display()
+        if self.game_state == GameState.Finished:
+            arcade.draw_text(text=f'Player "{self.active_player}" won the game!',
+                             start_x=self.width // 4,
+                             start_y=self.height // 2,
+                             color=arcade.color.BLACK,
+                             font_size=30,
+                             )
+            return
+        if self.game_state == GameState.Running:
+            # In case the game is open
+            self.draw_game_area()
+            # self.draw_clock()
+            self.draw_active_player_display()
 
     def draw_game_area(self):
         # Draw the board outlines
@@ -90,7 +107,7 @@ class GameUI(arcade.Window):
                 color = self.board_color(bd, br)
 
                 # Check if the board was finished
-                winner = self.mttt_board.assert_board_winner(bd, br)
+                winner = self.mttt_board.check_board_winner(bd, br)
                 if winner:
                     arcade.draw_rectangle_filled(x + board_size // 2,
                                                  y + board_size // 2,
@@ -212,7 +229,7 @@ class GameUI(arcade.Window):
         """
         Called when the user presses a mouse button.
         """
-        if not self.game_area_hit(x, y):
+        if not self.game_area_hit(x, y) or self.game_state != GameState.Running:
             return
 
         cords = self.get_grid_coordinates(x, y)
@@ -230,8 +247,10 @@ class GameUI(arcade.Window):
         self.players.put(self.active_player)
         self.active_player = self.players.get()
 
-        if not self.game_start:
-            self.game_start = time.time()
+        winner = self.mttt_board.check_meta_winner()
+        if winner:
+            self.game_state = GameState.Finished
+            print(f'Player {winner} won the game.')
 
     def game_area_hit(self, x, y):
         if x < self.meta_x or x > self.meta_x + self.meta_size:

@@ -68,7 +68,7 @@ class TikTakToeTester(unittest.TestCase):
                        ["X", None, None],
                        ["X", None, None]]
         game = MetaTicTacToe(board)
-        self.assertEqual("X", game.assert_board_winner(0, 0))
+        self.assertEqual("X", game.check_board_winner(0, 0))
 
     def test_victory_row(self):
         board = copy.deepcopy(self.test_board)
@@ -76,7 +76,7 @@ class TikTakToeTester(unittest.TestCase):
                        ["X", "X", "X"],
                        [None, None, None]]
         game = MetaTicTacToe(board)
-        self.assertEqual("X", game.assert_board_winner(0, 0))
+        self.assertEqual("X", game.check_board_winner(0, 0))
 
     def test_victory_diagonal(self):
         board = copy.deepcopy(self.test_board)
@@ -84,13 +84,13 @@ class TikTakToeTester(unittest.TestCase):
                        [None, "X", None],
                        ["X", None, None]]
         game = MetaTicTacToe(board)
-        self.assertEqual("X", game.assert_board_winner(0, 0))
+        self.assertEqual("X", game.check_board_winner(0, 0))
 
         board[0][0] = [["X", None, None],
                        [None, "X", None],
                        [None, None, "X"]]
         game = MetaTicTacToe(board)
-        self.assertEqual("X", game.assert_board_winner(0, 0))
+        self.assertEqual("X", game.check_board_winner(0, 0))
 
     def test_meta_victory(self):
         board = copy.deepcopy(self.test_board)
@@ -102,14 +102,14 @@ class TikTakToeTester(unittest.TestCase):
                        ["X", "X", "X"],
                        [None, None, None]]
         game = MetaTicTacToe(board)
-        self.assertIsNone(game.assert_meta_winner())
+        self.assertIsNone(game.check_meta_winner())
 
         # Player X finishes by winning board 0-2
         game._state[0][2] = [[None, None, None],
                              ["X", "X", "X"],
                              [None, None, None]]
 
-        self.assertEqual("X", game.assert_meta_winner())
+        self.assertEqual("X", game.check_meta_winner())
         pass
 
 
