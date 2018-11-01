@@ -270,18 +270,21 @@ class GameUI(arcade.Window):
             print(f'Field {self.nxt_legal} id already marked')
             return
 
-        self.nxt_legal = nxt
-        self.players.put(self.active_player)
-        self.active_player = self.players.get()
-
+        # Check if the game has ended
         finished = self.mttt_board.check_meta_winner()
         if finished == "draw":
             self.game_state = GameState.Finished
             self.game_result = GameResult.Draw
+            return
         elif finished:
             self.game_state = GameState.Finished
             self.game_result = GameResult.Won
-            print(f'Player {finished} won the game.')
+            return
+
+        # Prepare next turn
+        self.nxt_legal = nxt
+        self.players.put(self.active_player)
+        self.active_player = self.players.get()
 
     def game_area_hit(self, x, y):
         if x < self.meta_x or x > self.meta_x + self.meta_size:
