@@ -5,6 +5,8 @@ from enum import Enum
 from queue import Queue
 from mttt import MetaTicTacToe, WrongBoardError, FieldTakenError
 
+VERSION = 1.0
+
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
@@ -46,7 +48,7 @@ class GameUI(arcade.Window):
     info_y = 0
 
     def __init__(self, width, height):
-        super().__init__(width, height, 'Meta Tic Tac Toe v0.2', resizable=True)
+        super().__init__(width, height, f'Meta Tic Tac Toe v{VERSION}', resizable=True)
         self.set_min_size(MIN_WIDTH, MIN_HEIGHT)
         arcade.set_background_color(arcade.color.WHITE)
         self.background = None
