@@ -45,11 +45,13 @@ class MetaTicTacToe:
         return self._next
 
     def check_board_winner(self, bd, br):
-        board = self._state[bd][br]
-        if type(board) is not list:
-            return board
 
-        winner = self._check_board(board)
+        # If the state is a single value, the board has already finished
+        state = self._state[bd][br]
+        if type(state) is not list:
+            return state
+
+        winner = self._check_board(state)
         if winner:
             self._state[bd][br] = winner
         return winner
@@ -95,10 +97,17 @@ class MetaTicTacToe:
     def _check_board(self, board):
         # Transposition to check rows, then columns
         for newBoard in [board, zip(*board)]:
-            result = self._check_row(newBoard)
-            if result:
-                return result
-        return self._check_diagonals(board)
+            winner = self._check_row(newBoard)
+            if winner:
+                return winner
+        winner = self._check_diagonals(board)
+        if winner:
+            return winner
+        # No more 'None' entries left -> board is a draw
+        still_open = set([y for x in board for y in x if y is None])
+        if not still_open:
+            return 'draw'
+        return None
 
     def __getitem__(self, item):
         return self._state[item]

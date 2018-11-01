@@ -16,10 +16,17 @@ MARGIN = 30
 COLOR_VALID = 242, 250, 234
 COLOR_INVALID = 250, 234, 234
 
+
 class GameState(Enum):
     Setup = 0
     Running = 1
     Finished = 2
+
+
+class GameResult(Enum):
+    Draw = 0,
+    Won = 1
+
 
 class GameUI(arcade.Window):
     mttt_board = None
@@ -27,6 +34,7 @@ class GameUI(arcade.Window):
     active_player = None
 
     game_state = GameState.Setup
+    game_result = None
 
     nxt_legal = None
 
@@ -81,14 +89,24 @@ class GameUI(arcade.Window):
                                       texture=self.background,
                                       repeat_count_x=1,
                                       repeat_count_y=1)
+
+        # Draw the game result, if finished
         if self.game_state == GameState.Finished:
-            arcade.draw_text(text=f'Player "{self.active_player}" won the game!',
-                             start_x=self.width // 4,
-                             start_y=self.height // 2,
-                             color=arcade.color.BLACK,
-                             font_size=30,
-                             )
+            if self.game_result == GameResult.Won:
+                arcade.draw_text(text=f'Player "{self.active_player}" won the game!',
+                                 start_x=self.width // 4,
+                                 start_y=self.height // 2,
+                                 color=arcade.color.BLACK,
+                                 font_size=30)
+            elif self.game_result == GameResult.Draw:
+                arcade.draw_text(text=f'The game is a draw!',
+                                 start_x=self.width // 4,
+                                 start_y=self.height // 2,
+                                 color=arcade.color.BLACK,
+                                 font_size=30)
             return
+
+        # Draw the game area
         if self.game_state == GameState.Running:
             # In case the game is open
             self.draw_game_area()
@@ -177,6 +195,13 @@ class GameUI(arcade.Window):
                                        border_width=3,
                                        color=arcade.color.BLACK)
 
+        if mark == 'draw':
+            arcade.draw_rectangle_filled(center_x=x + size // 2,
+                                         center_y=y + size // 2,
+                                         width=size,
+                                         height=size,
+                                         color=arcade.color.LIGHT_GRAY)
+
     @staticmethod
     def draw_board(pos_x, pos_y, size, color, bg_color=None, line_padding=0.0, border_width=1):
         # Draw background
@@ -247,10 +272,14 @@ class GameUI(arcade.Window):
         self.players.put(self.active_player)
         self.active_player = self.players.get()
 
-        winner = self.mttt_board.check_meta_winner()
-        if winner:
+        finished = self.mttt_board.check_meta_winner()
+        if finished == "draw":
             self.game_state = GameState.Finished
-            print(f'Player {winner} won the game.')
+            self.game_result = GameResult.Draw
+        elif finished:
+            self.game_state = GameState.Finished
+            self.game_result = GameResult.Won
+            print(f'Player {finished} won the game.')
 
     def game_area_hit(self, x, y):
         if x < self.meta_x or x > self.meta_x + self.meta_size:
