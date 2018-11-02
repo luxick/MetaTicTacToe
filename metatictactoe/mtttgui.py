@@ -5,7 +5,7 @@ import os
 from enum import Enum
 from queue import Queue
 
-
+from start_screen import SetupScreen
 from mttt import MetaTicTacToe, WrongBoardError, FieldTakenError
 
 VERSION = 1.0
@@ -54,31 +54,33 @@ class Player:
 
 
 class GameUI(arcade.Window):
-    mttt_board = None
-    player_1 = None
-    player_2 = None
-    play_queue = None
-    active_player = None
-
-    game_state = GameState.Setup
-    game_result = None
-
-    nxt_legal = None
-
-    meta_x = 0
-    meta_y = 0
-    meta_size = 0
-
-    panel_x = 0
-    panel_y = 0
-    panel_width = 0
-    panel_height = 0
-
     def __init__(self, width, height):
         super().__init__(width, height, f'Meta Tic Tac Toe v{VERSION}', resizable=True)
         self.set_min_size(MIN_WIDTH, MIN_HEIGHT)
         self.background = None
         self.total_time = 0.0
+
+        self.mttt_board = None
+        self.player_1 = None
+        self.player_2 = None
+        self.play_queue = None
+        self.active_player = None
+
+        self.game_state = GameState.Setup
+        self.game_result = None
+
+        self.nxt_legal = None
+
+        self.meta_x = 0
+        self.meta_y = 0
+        self.meta_size = 0
+
+        self.panel_x = 0
+        self.panel_y = 0
+        self.panel_width = 0
+        self.panel_height = 0
+
+        self.setup_screen = SetupScreen(self)
 
     def setup(self):
         # Create your sprites and sprite lists here
@@ -94,10 +96,12 @@ class GameUI(arcade.Window):
 
         self.active_player = self.play_queue.get()
 
-        self.game_state = GameState.Running
+        self.game_state = GameState.Setup
+        self.setup_screen.setup()
 
     def on_resize(self, width, height):
         super().on_resize(width, height)
+        self.setup_screen.on_resize(width, height)
 
         self.meta_size = round(min(width, height)) - 2 * MARGIN
 
@@ -133,6 +137,10 @@ class GameUI(arcade.Window):
                                       texture=self.background,
                                       repeat_count_x=1,
                                       repeat_count_y=1)
+
+        if self.game_state == GameState.Setup:
+            self.setup_screen.on_draw()
+            return
 
         # Draw the game result, if finished
         if self.game_state == GameState.Finished:
@@ -364,6 +372,9 @@ class GameUI(arcade.Window):
         """
         Called when the user presses a mouse button.
         """
+        if self.game_state == GameState.Setup:
+            self.setup_screen.on_mouse_press(x, y, button, key_modifiers)
+
         if not self.game_area_hit(x, y) or self.game_state != GameState.Running:
             return
 
@@ -394,6 +405,14 @@ class GameUI(arcade.Window):
         self.play_queue.put(self.active_player)
         self.active_player = self.play_queue.get()
 
+    def on_mouse_release(self, x, y, button, key_modifiers):
+        """
+        Called when a user releases a mouse button.
+        """
+        if self.game_state == GameState.Setup:
+            self.setup_screen.on_mouse_release(x, y, button, key_modifiers)
+            return
+
     def game_area_hit(self, x, y):
         if x < self.meta_x or x > self.meta_x + self.meta_size:
             return False
@@ -422,6 +441,9 @@ class GameUI(arcade.Window):
         # Flip row coordinate. 0, 0 should be top left
         row = abs(row - 2)
         return column, row
+
+    def start_game(self):
+        self.game_state = GameState.Running
 
 
 def main():
