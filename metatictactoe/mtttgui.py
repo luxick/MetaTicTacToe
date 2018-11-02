@@ -1,5 +1,7 @@
 import arcade
 import time
+import sys
+import os
 
 from enum import Enum
 from queue import Queue
@@ -7,16 +9,29 @@ from mttt import MetaTicTacToe, WrongBoardError, FieldTakenError
 
 VERSION = 1.0
 
-SCREEN_WIDTH = 800
+SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 600
 
 MIN_WIDTH = 800
-MIN_HEIGHT = 600
+MIN_HEIGHT = 550
 
 MARGIN = 30
 
 COLOR_VALID = 242, 250, 234
 COLOR_INVALID = 250, 234, 234
+
+COLOR_PANEL_BG = 226, 226, 226, 255
+
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 class GameState(Enum):
@@ -44,8 +59,10 @@ class GameUI(arcade.Window):
     meta_y = 0
     meta_size = 0
 
-    info_x = 0
-    info_y = 0
+    panel_x = 0
+    panel_y = 0
+    panel_width = 0
+    panel_height = 0
 
     def __init__(self, width, height):
         super().__init__(width, height, f'Meta Tic Tac Toe v{VERSION}', resizable=True)
@@ -55,7 +72,8 @@ class GameUI(arcade.Window):
 
     def setup(self):
         # Create your sprites and sprite lists here
-        self.background = arcade.load_texture("resources/background.jpg")
+        bg_path = resource_path('resources/background.jpg')
+        self.background = arcade.load_texture(bg_path)
 
         self.mttt_board = MetaTicTacToe()
         self.players = Queue(2)
@@ -68,12 +86,24 @@ class GameUI(arcade.Window):
 
     def on_resize(self, width, height):
         super().on_resize(width, height)
-        self.meta_size = round(min(width, height) * 0.80)
-        self.meta_x = self.width - self.meta_size - MARGIN
-        self.meta_y = self.height - self.meta_size - MARGIN
 
-        self.info_x = MARGIN
-        self.info_y = self.height - MARGIN - 17
+        self.meta_size = round(min(width, height)) - 2 * MARGIN
+
+        overlap = self.width - self.meta_size - self.meta_size // 2 - 2 * MARGIN
+        if overlap < 0:
+            self.meta_size = self.meta_size + overlap
+
+        self.panel_width = self.meta_size // 2
+        self.panel_height = self.meta_size
+
+        # horizontally center game area
+        abs_width = self.meta_size + self.panel_width + MARGIN
+        free_space = self.width - abs_width
+        self.panel_x = free_space // 2
+        self.meta_x = self.panel_x + self.panel_width + MARGIN
+
+        self.meta_y = self.height - self.meta_size - MARGIN
+        self.panel_y = self.meta_y
 
     def on_draw(self):
         """
@@ -112,8 +142,23 @@ class GameUI(arcade.Window):
         if self.game_state == GameState.Running:
             # In case the game is open
             self.draw_game_area()
+
+            self.draw_panel_bg()
             # self.draw_clock()
-            self.draw_active_player_display()
+            # self.draw_active_player_display()
+
+    def draw_panel_bg(self):
+        arcade.draw_rectangle_filled(center_x=self.panel_x + self.panel_width // 2,
+                                     center_y=self.panel_y + self.panel_height // 2,
+                                     width=self.panel_width,
+                                     height=self.panel_height,
+                                     color=COLOR_PANEL_BG)
+        arcade.draw_rectangle_outline(center_x=self.panel_x + self.panel_width // 2,
+                                      center_y=self.panel_y + self.panel_height // 2,
+                                      width=self.panel_width,
+                                      height=self.panel_height,
+                                      color=arcade.color.BLACK,
+                                      border_width=2)
 
     def draw_game_area(self):
         # Draw the board outlines
@@ -237,12 +282,12 @@ class GameUI(arcade.Window):
             diff = int(time.time() - self.game_start)
             minutes, seconds = diff // 60, diff % 60
         arcade.draw_text('Time: {:02}:{:02}'.format(minutes, seconds),
-                         self.info_x, self.info_y,
+                         self.panel_x, self.panel_y,
                          arcade.color.BLACK)
 
     def draw_active_player_display(self):
         arcade.draw_text(f'Current Player: {self.active_player}',
-                         self.info_x, self.info_y - 20,
+                         self.panel_x, self.panel_y - 20,
                          arcade.color.BLACK)
 
     def update(self, delta_time):
