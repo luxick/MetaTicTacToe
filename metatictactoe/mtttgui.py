@@ -1,10 +1,11 @@
 import arcade
-import time
 import sys
 import os
 
 from enum import Enum
 from queue import Queue
+
+
 from mttt import MetaTicTacToe, WrongBoardError, FieldTakenError
 
 VERSION = 1.0
@@ -45,9 +46,18 @@ class GameResult(Enum):
     Won = 1
 
 
+class Player:
+    def __init__(self, name, mark):
+        self.name = name
+        self.mark = mark
+        self.play_time = 0.0
+
+
 class GameUI(arcade.Window):
     mttt_board = None
-    players = None
+    player_1 = None
+    player_2 = None
+    play_queue = None
     active_player = None
 
     game_state = GameState.Setup
@@ -67,8 +77,8 @@ class GameUI(arcade.Window):
     def __init__(self, width, height):
         super().__init__(width, height, f'Meta Tic Tac Toe v{VERSION}', resizable=True)
         self.set_min_size(MIN_WIDTH, MIN_HEIGHT)
-        arcade.set_background_color(arcade.color.WHITE)
         self.background = None
+        self.total_time = 0.0
 
     def setup(self):
         # Create your sprites and sprite lists here
@@ -76,11 +86,13 @@ class GameUI(arcade.Window):
         self.background = arcade.load_texture(bg_path)
 
         self.mttt_board = MetaTicTacToe()
-        self.players = Queue(2)
-        self.players.put('X')
-        self.players.put('O')
+        self.player_1 = Player('Player 1', 'X')
+        self.player_2 = Player('Player 2', 'O')
+        self.play_queue = Queue(2)
+        self.play_queue.put(self.player_1)
+        self.play_queue.put(self.player_2)
 
-        self.active_player = self.players.get()
+        self.active_player = self.play_queue.get()
 
         self.game_state = GameState.Running
 
@@ -125,27 +137,31 @@ class GameUI(arcade.Window):
         # Draw the game result, if finished
         if self.game_state == GameState.Finished:
             if self.game_result == GameResult.Won:
-                arcade.draw_text(text=f'Player "{self.active_player}" won the game!',
-                                 start_x=self.width // 4,
+                arcade.draw_text(text=f'Player "{self.active_player.name}" won the game!',
+                                 start_x=self.width // 2,
                                  start_y=self.height // 2,
                                  color=arcade.color.BLACK,
-                                 font_size=30)
+                                 font_size=30,
+                                 align="center",
+                                 anchor_x="center",
+                                 anchor_y="center")
             elif self.game_result == GameResult.Draw:
                 arcade.draw_text(text=f'The game is a draw!',
-                                 start_x=self.width // 4,
+                                 start_x=self.width // 2,
                                  start_y=self.height // 2,
                                  color=arcade.color.BLACK,
-                                 font_size=30)
+                                 font_size=30,
+                                 align="center",
+                                 anchor_x="center",
+                                 anchor_y="center")
             return
 
         # Draw the game area
         if self.game_state == GameState.Running:
             # In case the game is open
             self.draw_game_area()
-
             self.draw_panel_bg()
-            # self.draw_clock()
-            # self.draw_active_player_display()
+            self.draw_panel_items()
 
     def draw_panel_bg(self):
         arcade.draw_rectangle_filled(center_x=self.panel_x + self.panel_width // 2,
@@ -159,6 +175,62 @@ class GameUI(arcade.Window):
                                       height=self.panel_height,
                                       color=arcade.color.BLACK,
                                       border_width=2)
+
+    def draw_panel_items(self):
+        item_height = 40
+        item_width = self.panel_width
+        item_x = self.panel_x + self.panel_width // 2
+        item_y = self.panel_y + self.panel_height - item_height // 2
+
+        # Game time display
+        text = 'Game Time'
+        self.draw_time_display(center_x=item_x,
+                               center_y=item_y,
+                               width=item_width,
+                               height=item_height,
+                               text=text,
+                               time=self.total_time)
+        # Player 1 time
+        item_y = item_y - item_height
+        self.draw_time_display(center_x=item_x,
+                               center_y=item_y,
+                               width=item_width,
+                               height=item_height,
+                               text=self.player_1.name,
+                               time=self.player_1.play_time)
+        # Player 2 time
+        item_y = item_y - item_height
+        self.draw_time_display(center_x=item_x,
+                               center_y=item_y,
+                               width=item_width,
+                               height=item_height,
+                               text=self.player_2.name,
+                               time=self.player_2.play_time)
+
+    @staticmethod
+    def draw_time_display(center_x, center_y, width, height, text, time,
+                          text_color=arcade.color.BLACK, background_color=arcade.color.LIGHT_BLUE):
+        arcade.draw_rectangle_filled(center_x, center_y, width, height, background_color)
+        arcade.draw_rectangle_outline(center_x, center_y, width, height, arcade.color.BLACK)
+        arcade.draw_text(text=f'{text}:',
+                         start_x=center_x,
+                         start_y=center_y,
+                         width=width * 0.8,
+                         align='left',
+                         anchor_x='center',
+                         anchor_y='center',
+                         color=text_color)
+        minutes = int(time) // 60
+        seconds = int(time) % 60
+        time_string = '{:02}:{:02}'.format(minutes, seconds)
+        arcade.draw_text(text=time_string,
+                         start_x=center_x,
+                         start_y=center_y,
+                         width=width * 0.8,
+                         align='right',
+                         anchor_x='center',
+                         anchor_y='center',
+                         color=text_color)
 
     def draw_game_area(self):
         # Draw the board outlines
@@ -276,26 +348,17 @@ class GameUI(arcade.Window):
                              color=arcade.color.GRAY_BLUE,
                              border_width=border_width)
 
-    def draw_clock(self):
-        minutes, seconds = 0, 0
-        if self.game_start:
-            diff = int(time.time() - self.game_start)
-            minutes, seconds = diff // 60, diff % 60
-        arcade.draw_text('Time: {:02}:{:02}'.format(minutes, seconds),
-                         self.panel_x, self.panel_y,
-                         arcade.color.BLACK)
-
-    def draw_active_player_display(self):
-        arcade.draw_text(f'Current Player: {self.active_player}',
-                         self.panel_x, self.panel_y - 20,
-                         arcade.color.BLACK)
-
     def update(self, delta_time):
         """
         All the logic to move, and the game logic goes here.
         Normally, you'll call update() on the sprite lists that
         need it.
         """
+        if self.game_state != GameState.Running:
+            return
+
+        self.total_time += delta_time
+        self.active_player.play_time += delta_time
 
     def on_mouse_press(self, x, y, button, key_modifiers):
         """
@@ -307,7 +370,7 @@ class GameUI(arcade.Window):
         cords = self.get_grid_coordinates(x, y)
 
         try:
-            nxt = self.mttt_board.mark(self.active_player, *cords)
+            nxt = self.mttt_board.mark(self.active_player.mark, *cords)
         except WrongBoardError:
             print(f'Must play in board: {self.nxt_legal}')
             return
@@ -328,8 +391,8 @@ class GameUI(arcade.Window):
 
         # Prepare next turn
         self.nxt_legal = nxt
-        self.players.put(self.active_player)
-        self.active_player = self.players.get()
+        self.play_queue.put(self.active_player)
+        self.active_player = self.play_queue.get()
 
     def game_area_hit(self, x, y):
         if x < self.meta_x or x > self.meta_x + self.meta_size:
