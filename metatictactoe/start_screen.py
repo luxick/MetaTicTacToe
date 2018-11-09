@@ -2,7 +2,7 @@ import arcade
 import widgets
 
 
-class SetupScreen:
+class StartScreen:
     def __init__(self, gui: arcade.Window):
         self.gui = gui
         self.start_button = None

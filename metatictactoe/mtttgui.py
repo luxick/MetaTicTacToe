@@ -5,7 +5,7 @@ import os
 from enum import Enum
 from queue import Queue
 
-from start_screen import SetupScreen
+from start_screen import StartScreen
 from mttt import MetaTicTacToe, WrongBoardError, FieldTakenError
 
 VERSION = 1.0
@@ -80,7 +80,7 @@ class GameUI(arcade.Window):
         self.panel_width = 0
         self.panel_height = 0
 
-        self.setup_screen = SetupScreen(self)
+        self.setup_screen = StartScreen(self)
 
     def setup(self):
         # Create your sprites and sprite lists here
