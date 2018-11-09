@@ -5,6 +5,7 @@ import const
 
 from game_screen import GameScreen
 from start_screen import StartScreen
+from end_screen import EndScreen
 from util import Player, AppScreen
 from mttt import GameResult
 
@@ -34,7 +35,8 @@ class GameUI(arcade.Window):
 
         # Create application screens
         self.screens = {AppScreen.Start: StartScreen(self),
-                        AppScreen.Game: GameScreen(self)}
+                        AppScreen.Game: GameScreen(self),
+                        AppScreen.End: EndScreen(self)}
 
     def setup(self):
         # Create your sprites and sprite lists here
@@ -73,29 +75,6 @@ class GameUI(arcade.Window):
                                       repeat_count_y=1)
 
         self.screens[self.active_screen].on_draw()
-
-        # TODO move to separate end screen
-        # # Draw the game result, if finished
-        # if self.active_screen == GameState.Finished:
-        #     if self.game_result == GameResult.Won:
-        #         arcade.draw_text(text=f'Player "{self.active_player.name}" won the game!',
-        #                          start_x=self.width // 2,
-        #                          start_y=self.height // 2,
-        #                          color=arcade.color.BLACK,
-        #                          font_size=30,
-        #                          align="center",
-        #                          anchor_x="center",
-        #                          anchor_y="center")
-        #     elif self.game_result == GameResult.Draw:
-        #         arcade.draw_text(text=f'The game is a draw!',
-        #                          start_x=self.width // 2,
-        #                          start_y=self.height // 2,
-        #                          color=arcade.color.BLACK,
-        #                          font_size=30,
-        #                          align="center",
-        #                          anchor_x="center",
-        #                          anchor_y="center")
-        #     return
 
     def update(self, delta_time):
         """

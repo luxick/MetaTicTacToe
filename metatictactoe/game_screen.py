@@ -83,25 +83,10 @@ class GameScreen:
         self.draw_panel_items()
 
     def on_mouse_release(self, x, y, button, key_modifiers):
-        pass
-
-    def on_mouse_press(self, x, y, button, key_modifiers):
-        """
-        Called when the user presses a mouse button.
-        """
         if not self.game_area_hit(x, y):
             return
 
         cords = self.pos_to_grid_cell(x, y)
-
-        # Check if the game has ended
-        finished = self.board.check_meta_winner()
-        if finished == "draw":
-            self.app.game_result = GameResult.Draw
-            return
-        elif finished:
-            self.app.game_result = GameResult.Won
-            return
 
         # Run the game logic
         try:
@@ -113,10 +98,27 @@ class GameScreen:
             print(f'Field {self.nxt_legal} id already marked')
             return
 
+        # Check if the game has ended
+        finished = self.board.check_meta_winner()
+        if finished == "draw":
+            self.app.active_screen = AppScreen.End
+            self.app.game_result = GameResult.Draw
+            return
+        elif finished:
+            self.app.active_screen = AppScreen.End
+            self.app.game_result = GameResult.Won
+            return
+
         # Prepare next turn
         self.nxt_legal = nxt
         self.play_queue.put(self.active_player)
         self.active_player = self.play_queue.get()
+
+    def on_mouse_press(self, x, y, button, key_modifiers):
+        """
+        Called when the user presses a mouse button.
+        """
+        pass
 
     def draw_panel_bg(self):
         arcade.draw_rectangle_filled(center_x=self.panel_x + self.panel_width // 2,
