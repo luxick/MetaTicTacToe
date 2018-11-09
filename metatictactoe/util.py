@@ -1,4 +1,24 @@
+from enum import Enum
 import arcade
+
+
+class Player:
+    """
+    Class to hold player data and the mark symbol used in the game logic
+    """
+    def __init__(self, name, mark):
+        self.name = name
+        self.mark = mark
+        self.play_time = 0.0
+
+
+class AppScreen(Enum):
+    """
+    All available screens of the application
+    """
+    Start = 0,
+    Game = 1,
+    End = 2
 
 
 def check_mouse_press_for_buttons(x, y, button_list):

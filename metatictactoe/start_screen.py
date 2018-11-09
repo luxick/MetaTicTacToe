@@ -1,10 +1,10 @@
 import arcade
-import widgets
+from util import AppScreen, check_mouse_press_for_buttons, check_mouse_release_for_buttons, StartGameButton
 
 
 class StartScreen:
-    def __init__(self, gui: arcade.Window):
-        self.gui = gui
+    def __init__(self, app: 'mtttgui.GameUI'):
+        self.gui = app
         self.start_button = None
         self.start_button_x = 0
         self.start_button_y = 0
@@ -14,10 +14,13 @@ class StartScreen:
         self.buttons = {}
 
     def setup(self):
-        start_button = widgets.StartGameButton(width=200,
-                                               height=40,
-                                               action_function=self.gui.start_game)
+        start_button = StartGameButton(width=200,
+                                       height=40,
+                                       action_function=self._switch_to_game_screen)
         self.buttons['start_button'] = start_button
+
+    def update(self, delta_time):
+        pass
 
     def on_resize(self, width, height):
         self.start_button_x = width // 2
@@ -29,10 +32,13 @@ class StartScreen:
         self.buttons['start_button'].draw(self.start_button_x, self.start_button_y)
 
     def on_mouse_press(self, x, y, button, key_modifiers):
-        widgets.check_mouse_press_for_buttons(x, y, self.buttons.values())
+        check_mouse_press_for_buttons(x, y, self.buttons.values())
 
     def on_mouse_release(self, x, y, button, key_modifiers):
-        widgets.check_mouse_release_for_buttons(x, y, self.buttons.values())
+        check_mouse_release_for_buttons(x, y, self.buttons.values())
+
+    def _switch_to_game_screen(self):
+        self.gui.active_screen = AppScreen.Game
 
     def _draw_title(self):
         title_x = self.gui.width // 2

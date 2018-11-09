@@ -1,4 +1,5 @@
 import copy
+from enum import Enum
 
 
 class WrongBoardError(Exception):
@@ -7,6 +8,11 @@ class WrongBoardError(Exception):
 
 class FieldTakenError(Exception):
     pass
+
+
+class GameResult(Enum):
+    Draw = 0,
+    Won = 1
 
 
 class MetaTicTacToe:
