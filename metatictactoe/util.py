@@ -1,5 +1,6 @@
 from enum import Enum
 import arcade
+from const import KEY_CODES, COLOR_TRANSPARENT
 
 
 class Player:
@@ -146,5 +147,93 @@ class RestartButton(TextButton):
 
 
 class TextInput:
-    def __init__(self):
+    def __init__(self,
+                 text,
+                 font_size=18,
+                 font_face="Arial",
+                 max_chars=12,
+                 focused_bg=arcade.color.LIGHT_BLUE,
+                 unfocused_bg=COLOR_TRANSPARENT,
+                 box_weight=2):
+        self.center_x = 0
+        self.center_y = 0
+        self.width = 0
+        self.height = 0
+        self.text = text
+        self.font_size = font_size
+        self.font_face = font_face
+        self.max_chars = max_chars
+        self.focused = False
+        self.focused_bg = focused_bg
+        self.unfocused_bg = unfocused_bg
+        self.box_weight = box_weight
+
+    def draw(self):
+        """ Draw the text box """
+        if not self.focused:
+            color = self.unfocused_bg
+            text = self.text
+        else:
+            color = self.focused_bg
+            text = self.text + '_'
+
+        lining_color = arcade.color.BLACK
+
+        arcade.draw_rectangle_filled(self.center_x, self.center_y, self.width,
+                                     self.height, color)
+
+        if self.focused:
+            # Bottom horizontal
+            arcade.draw_line(self.center_x - self.width / 2, self.center_y - self.height / 2,
+                             self.center_x + self.width / 2, self.center_y - self.height / 2,
+                             lining_color, self.box_weight)
+
+            # Right vertical
+            arcade.draw_line(self.center_x + self.width / 2, self.center_y - self.height / 2,
+                             self.center_x + self.width / 2, self.center_y + self.height / 2,
+                             lining_color, self.box_weight)
+
+            # Top horizontal
+            arcade.draw_line(self.center_x - self.width / 2, self.center_y + self.height / 2,
+                             self.center_x + self.width / 2, self.center_y + self.height / 2,
+                             lining_color, self.box_weight)
+
+            # Left vertical
+            arcade.draw_line(self.center_x - self.width / 2, self.center_y - self.height / 2,
+                             self.center_x - self.width / 2, self.center_y + self.height / 2,
+                             lining_color, self.box_weight)
+
+        arcade.draw_text(text, self.center_x, self.center_y,
+                         arcade.color.BLACK, font_size=self.font_size,
+                         width=self.width, align="center",
+                         anchor_x="center", anchor_y="center")
+
+    def on_key_press(self, key, key_modifiers):
+        """
+        Called whenever a key on the keyboard is pressed.
+
+        For a full list of keys, see:
+        http://arcade.academy/arcade.key.html
+        """
+        if key == arcade.key.BACKSPACE:
+            self.text = self.text[:-1]
+        if key in KEY_CODES and len(self.text) <= self.max_chars:
+            self.text += KEY_CODES[key]
+
+    def on_key_release(self, key, key_modifiers):
+        """
+        Called whenever the user lets off a previously pressed key.
+        """
         pass
+
+    def update_position(self, center_x, center_y, width, height):
+        self.center_x = center_x
+        self.center_y = center_y
+        self.width = width
+        self.height = height
+
+
+class PlayerNameInput(TextInput):
+    def __init__(self, default_text: str):
+        super().__init__(default_text, 18, "Arial")
+        self.default_text = default_text

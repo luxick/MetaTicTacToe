@@ -97,6 +97,10 @@ class GameUI(arcade.Window):
         """
         self.screens[self.active_screen].on_mouse_release(x, y, button, key_modifiers)
 
+    def on_key_press(self, key, modifiers):
+        """ Called whenever the user presses a key. """
+        self.screens[self.active_screen].on_key_press(key, modifiers)
+
 
 def main():
     """ Main method """

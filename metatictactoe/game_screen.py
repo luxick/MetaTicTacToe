@@ -120,6 +120,10 @@ class GameScreen:
         """
         pass
 
+    def on_key_press(self, key, modifiers):
+        """ Called whenever the user presses a key. """
+        pass
+
     def draw_panel_bg(self):
         arcade.draw_rectangle_filled(center_x=self.panel_x + self.panel_width // 2,
                                      center_y=self.panel_y + self.panel_height // 2,

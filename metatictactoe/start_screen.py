@@ -1,36 +1,53 @@
 import arcade
-from util import AppScreen, StartGameButton
+from util import AppScreen, StartGameButton, PlayerNameInput
 from util import check_mouse_press_for_buttons, check_mouse_release_for_buttons
 
 
 class StartScreen:
     buttons: dict
+    text_inputs: dict
+    focused_input: PlayerNameInput
 
     def __init__(self, app: 'mtttgui.GameUI'):
         self.app = app
-        self.start_button = None
-        self.start_button_x = 0
-        self.start_button_y = 0
 
     def setup(self):
         self.buttons = {'start_button': StartGameButton(action_function=self._start_new_game)}
+        self.text_inputs = {
+            'player_1_name': PlayerNameInput('PLAYER 1'),
+            'player_2_name': PlayerNameInput('PLAYER 2')}
+        self.focused_input = None
 
     def update(self, delta_time):
         pass
 
     def on_resize(self, width, height):
         self.buttons['start_button'].update_position(width // 2, height // 4, 200, 40)
+        self.text_inputs['player_1_name'].update_position(width // 2, height // 2, 300, 40)
+        self.text_inputs['player_2_name'].update_position(width // 2, height // 2 - 44, 300, 40)
 
     def on_draw(self):
         self._draw_title()
-        self._draw_player_list()
         self.buttons['start_button'].draw()
+        for text_input in self.text_inputs.values():
+            text_input.draw()
 
     def on_mouse_press(self, x, y, button, key_modifiers):
         check_mouse_press_for_buttons(x, y, self.buttons.values())
 
     def on_mouse_release(self, x, y, button, key_modifiers):
         check_mouse_release_for_buttons(x, y, self.buttons.values())
+
+    def on_key_press(self, key, modifiers):
+        if self.focused_input:
+            if key == arcade.key.ENTER:
+                print(f'Input successful: {self.focused_input.text}')
+                self.focused_input = None
+            elif key == arcade.key.ESCAPE:
+                print('Input aborted')
+                self.focused_input = None
+            else:
+                self.focused_input.on_key_press(key, modifiers)
 
     def _start_new_game(self):
         self.app.screens[AppScreen.Game].setup()
@@ -48,24 +65,3 @@ class StartScreen:
                          anchor_x='center',
                          anchor_y='center',
                          font_size=40)
-
-    def _draw_player_list(self):
-        x = self.app.width // 2
-        y = self.app.height // 2
-
-        arcade.draw_text(text=f'{self.app.player_1.name} ({self.app.player_1.mark})',
-                         start_x=x,
-                         start_y=y,
-                         color=arcade.color.BLACK,
-                         align='center',
-                         anchor_x='center',
-                         anchor_y='center',
-                         font_size=20)
-        arcade.draw_text(text=f'{self.app.player_2.name} ({self.app.player_2.mark})',
-                         start_x=x,
-                         start_y=y - 40,
-                         color=arcade.color.BLACK,
-                         align='center',
-                         anchor_x='center',
-                         anchor_y='center',
-                         font_size=20)
