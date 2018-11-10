@@ -141,12 +141,29 @@ class GameScreen:
 
         # Game time display
         text = 'Game Time'
-        self.draw_time_display(center_x=item_x,
-                               center_y=item_y,
-                               width=item_width,
-                               height=item_height,
-                               text=text,
-                               time=self.play_time)
+        self.draw_time_item(center_x=item_x,
+                            center_y=item_y,
+                            width=item_width,
+                            height=item_height,
+                            text=text,
+                            time=self.play_time)
+
+        # Draw current player mark
+        x = self.panel_x + 75
+        y = self.panel_y + 5
+        size = self.panel_width - 150
+
+        arcade.draw_rectangle_filled(x + size // 2, y + size // 2, size, size, arcade.color.LIGHT_BLUE)
+        arcade.draw_rectangle_outline(x + size // 2, y + size // 2, size, size, arcade.color.BLACK)
+        self.draw_player_mark(self.active_player.mark, x, y, size)
+
+        # Draw Player name above it
+        item_y = y + size + 5 + item_height // 2
+        self.draw_now_playing_item(center_x=item_x,
+                                   center_y=item_y,
+                                   width=item_width,
+                                   height=item_height,
+                                   name=self.active_player.name)
 
     def draw_game_area(self):
         # Draw the board outlines
@@ -259,8 +276,8 @@ class GameScreen:
                                          color=arcade.color.LIGHT_GRAY)
 
     @staticmethod
-    def draw_time_display(center_x, center_y, width, height, text, time,
-                          text_color=arcade.color.BLACK, background_color=arcade.color.LIGHT_BLUE):
+    def draw_time_item(center_x, center_y, width, height, text, time,
+                       text_color=arcade.color.BLACK, background_color=arcade.color.LIGHT_BLUE):
         arcade.draw_rectangle_filled(center_x, center_y, width, height, background_color)
         arcade.draw_rectangle_outline(center_x, center_y, width, height, arcade.color.BLACK)
         arcade.draw_text(text=f'{text}:',
@@ -275,6 +292,28 @@ class GameScreen:
         seconds = int(time) % 60
         time_string = '{:02}:{:02}'.format(minutes, seconds)
         arcade.draw_text(text=time_string,
+                         start_x=center_x,
+                         start_y=center_y,
+                         width=width * 0.8,
+                         align='right',
+                         anchor_x='center',
+                         anchor_y='center',
+                         color=text_color)
+
+    @staticmethod
+    def draw_now_playing_item(center_x, center_y, width, height, name,
+                              text_color=arcade.color.BLACK, background_color=arcade.color.LIGHT_BLUE):
+        arcade.draw_rectangle_filled(center_x, center_y, width, height, background_color)
+        arcade.draw_rectangle_outline(center_x, center_y, width, height, arcade.color.BLACK)
+        arcade.draw_text(text='Now Playing: ',
+                         start_x=center_x,
+                         start_y=center_y,
+                         width=width * 0.8,
+                         align='left',
+                         anchor_x='center',
+                         anchor_y='center',
+                         color=text_color)
+        arcade.draw_text(text=name,
                          start_x=center_x,
                          start_y=center_y,
                          width=width * 0.8,
