@@ -40,9 +40,8 @@ class MetaTicTacToe:
         self._state[bd][br][fd][fr] = marker
         self._next = (fd, fr)
 
-        if self.check_board_winner(bd, br):
-            # The board was finished by this mark
-            self._next = None
+        # Check if the board was finished with this mark
+        self.check_board_winner(bd, br)
 
         if self.check_board_winner(fd, fr):
             # The next player would have to play in a finished board
