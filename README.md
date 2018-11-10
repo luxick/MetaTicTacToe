@@ -14,4 +14,5 @@ An advanced version of Tic Tac Toe
 >TODO
 ### Dependencies
 
->TODO
+- python3
+- python-arcade
