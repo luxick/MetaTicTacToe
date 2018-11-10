@@ -143,3 +143,8 @@ class RestartButton(TextButton):
     def on_release(self):
         super().on_release()
         self.action_function()
+
+
+class TextInput:
+    def __init__(self):
+        pass
