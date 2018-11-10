@@ -1,14 +1,17 @@
 import arcade
 from mttt import GameResult
-from util import AppScreen
+from util import AppScreen, RestartButton
+from util import check_mouse_press_for_buttons, check_mouse_release_for_buttons
 
 
 class EndScreen:
+    buttons: dict
+
     def __init__(self, app: 'mtttgui.GameUI'):
         self.app = app
 
     def setup(self):
-        pass
+        self.buttons = {'restart_button': RestartButton(action_function=self._restart_game)}
 
     def on_draw(self):
         """
@@ -36,6 +39,8 @@ class EndScreen:
                              anchor_x="center",
                              anchor_y="center")
 
+        self.buttons['restart_button'].draw()
+
     def update(self, delta_time):
         """
         All the logic to move, and the game logic goes here.
@@ -45,7 +50,7 @@ class EndScreen:
         pass
 
     def on_resize(self, width, height):
-        pass
+        self.buttons['restart_button'].update_position(width // 2, height // 4, 200, 40)
 
     def on_key_press(self, key, key_modifiers):
         """
@@ -72,10 +77,13 @@ class EndScreen:
         """
         Called when the user presses a mouse button.
         """
-        pass
+        check_mouse_press_for_buttons(x, y, self.buttons.values())
 
     def on_mouse_release(self, x, y, button, key_modifiers):
         """
         Called when a user releases a mouse button.
         """
-        pass
+        check_mouse_release_for_buttons(x, y, self.buttons.values())
+
+    def _restart_game(self):
+        self.app.active_screen = AppScreen.Start

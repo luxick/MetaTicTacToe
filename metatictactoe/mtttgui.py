@@ -49,8 +49,9 @@ class GameUI(arcade.Window):
 
         self.game_result = None
         self.active_screen = AppScreen.Start
-        self.screens[AppScreen.Game].setup()
-        self.screens[self.active_screen].setup()
+
+        for screen in self.screens.values():
+            screen.setup()
 
     def on_resize(self, width, height):
         super().on_resize(width, height)

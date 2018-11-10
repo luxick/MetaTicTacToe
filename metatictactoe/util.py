@@ -46,7 +46,6 @@ def check_mouse_release_for_buttons(x, y, button_list):
 class TextButton:
     """ Text-based button """
     def __init__(self,
-                 width, height,
                  text,
                  font_size=18,
                  font_face="Arial",
@@ -54,10 +53,10 @@ class TextButton:
                  highlight_color=arcade.color.WHITE,
                  shadow_color=arcade.color.GRAY,
                  button_height=2):
-        self.center_x = None
-        self.center_y = None
-        self.width = width
-        self.height = height
+        self.center_x = 0
+        self.center_y = 0
+        self.width = 0
+        self.height = 0
         self.text = text
         self.font_size = font_size
         self.font_face = font_face
@@ -67,10 +66,8 @@ class TextButton:
         self.shadow_color = shadow_color
         self.button_height = button_height
 
-    def draw(self, center_x, center_y):
+    def draw(self):
         """ Draw the button """
-        self.center_x = center_x
-        self.center_y = center_y
         arcade.draw_rectangle_filled(self.center_x, self.center_y, self.width,
                                      self.height, self.face_color)
 
@@ -115,6 +112,12 @@ class TextButton:
                          width=self.width, align="center",
                          anchor_x="center", anchor_y="center")
 
+    def update_position(self, center_x, center_y, width, height):
+        self.center_x = center_x
+        self.center_y = center_y
+        self.width = width
+        self.height = height
+
     def on_press(self):
         self.pressed = True
 
@@ -123,8 +126,18 @@ class TextButton:
 
 
 class StartGameButton(TextButton):
-    def __init__(self, width: int, height: int, action_function):
-        super().__init__(width, height, "Start Game", 18, "Arial")
+    def __init__(self, action_function):
+        super().__init__("Start Game", 18, "Arial")
+        self.action_function = action_function
+
+    def on_release(self):
+        super().on_release()
+        self.action_function()
+
+
+class RestartButton(TextButton):
+    def __init__(self, action_function):
+        super().__init__("Restart", 18, "Arial")
         self.action_function = action_function
 
     def on_release(self):
