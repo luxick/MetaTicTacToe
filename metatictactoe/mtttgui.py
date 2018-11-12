@@ -44,8 +44,8 @@ class GameUI(arcade.Window):
         self.background = arcade.load_texture(bg_path)
 
         # TODO Create player objects from user input
-        self.player_1 = Player('Player 1', 'X')
-        self.player_2 = Player('Player 2', 'O')
+        self.player_1 = Player('PLAYER 1', 'X')
+        self.player_2 = Player('PLAYER 2', 'O')
 
         self.game_result = None
         self.active_screen = AppScreen.Start
@@ -96,6 +96,10 @@ class GameUI(arcade.Window):
         Called when a user releases a mouse button.
         """
         self.screens[self.active_screen].on_mouse_release(x, y, button, key_modifiers)
+
+    def on_key_press(self, key, modifiers):
+        """ Called whenever the user presses a key. """
+        self.screens[self.active_screen].on_key_press(key, modifiers)
 
 
 def main():
