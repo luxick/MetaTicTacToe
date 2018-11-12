@@ -44,6 +44,22 @@ def check_mouse_release_for_buttons(x, y, button_list):
             button.on_release()
 
 
+def check_for_focused_input(x: int, y: int, input_list):
+    """ Given an x, y, see if we need to register any input field clicks. """
+    for text_input in input_list:
+        if x > text_input.center_x + text_input.width / 2:
+            continue
+        if x < text_input.center_x - text_input.width / 2:
+            continue
+        if y > text_input.center_y + text_input.height / 2:
+            continue
+        if y < text_input.center_y - text_input.height / 2:
+            continue
+        text_input.on_focus()
+        return text_input
+    return None
+
+
 class TextButton:
     """ Text-based button """
     def __init__(self,
@@ -208,6 +224,12 @@ class TextInput:
                          width=self.width, align="center",
                          anchor_x="center", anchor_y="center")
 
+    def on_focus(self):
+        self.focused = True
+
+    def on_focus_lost(self):
+        self.focused = False
+
     def on_key_press(self, key, key_modifiers):
         """
         Called whenever a key on the keyboard is pressed.
@@ -234,6 +256,19 @@ class TextInput:
 
 
 class PlayerNameInput(TextInput):
-    def __init__(self, default_text: str):
-        super().__init__(default_text, 18, "Arial")
-        self.default_text = default_text
+    def __init__(self, player: Player):
+        super().__init__(player.name, 18, "Arial")
+        self.player = player
+        self.default_text = player.name
+
+    def on_focus(self):
+        super().on_focus()
+        if self.text == self.default_text:
+            self.text = ''
+
+    def on_focus_lost(self):
+        super().on_focus_lost()
+        if self.text == '':
+            self.text = self.default_text
+        else:
+            self.player.name = self.text

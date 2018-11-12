@@ -44,8 +44,8 @@ class GameUI(arcade.Window):
         self.background = arcade.load_texture(bg_path)
 
         # TODO Create player objects from user input
-        self.player_1 = Player('Player 1', 'X')
-        self.player_2 = Player('Player 2', 'O')
+        self.player_1 = Player('PLAYER 1', 'X')
+        self.player_2 = Player('PLAYER 2', 'O')
 
         self.game_result = None
         self.active_screen = AppScreen.Start
