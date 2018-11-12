@@ -20,7 +20,7 @@ class EndScreen:
         if self.app.game_result == GameResult.Won:
             # TODO Player objects should be in library and GameResult should return those as winners
             winner = self.app.screens[AppScreen.Game].active_player.name
-            arcade.draw_text(text=f'Player "{winner}" won the game!',
+            arcade.draw_text(text=f'{winner} won the game!',
                              start_x=self.app.width // 2,
                              start_y=self.app.height // 2,
                              color=arcade.color.BLACK,
