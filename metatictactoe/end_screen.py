@@ -46,10 +46,10 @@ class EndScreen:
             self.draw_header(message)
 
         center_y = self.base_y + 140
-        self.draw_player_stats(center_y, self.app.player1)
+        self.draw_player_stats(center_y, self.app.player2)
 
         center_y += 55
-        self.draw_player_stats(center_y, self.app.player2)
+        self.draw_player_stats(center_y, self.app.player1)
 
         self.buttons['restart_button'].draw()
 
@@ -81,10 +81,11 @@ class EndScreen:
                                       height=height,
                                       color=arcade.color.BLACK)
 
-        arcade.draw_text(text=f'{player.name}',
+        arcade.draw_text(text=player.name,
                          start_x=center_x,
                          start_y=center_y,
                          width=width * 0.8,
+                         font_size=20,
                          align='left',
                          anchor_x='center',
                          anchor_y='center',
@@ -93,11 +94,12 @@ class EndScreen:
         time = player.time
         minutes = int(time) // 60
         seconds = int(time) % 60
-        time_string = 'Playtime: {:02}:{:02}'.format(minutes, seconds)
+        time_string = f'Playtime {minutes:02}:{seconds:02}'
         arcade.draw_text(text=time_string,
                          start_x=center_x,
                          start_y=center_y,
                          width=width * 0.8,
+                         font_size=20,
                          align='right',
                          anchor_x='center',
                          anchor_y='center',

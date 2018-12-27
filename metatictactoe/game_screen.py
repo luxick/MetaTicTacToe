@@ -105,13 +105,15 @@ class GameScreen:
         pass
 
     def draw_panel_bg(self):
-        arcade.draw_rectangle_filled(center_x=self.panel_x + self.panel_width // 2,
-                                     center_y=self.panel_y + self.panel_height // 2,
+        center_x = self.panel_x + self.panel_width // 2
+        center_y = self.panel_y + self.panel_height // 2
+        arcade.draw_rectangle_filled(center_x=center_x,
+                                     center_y=center_y,
                                      width=self.panel_width,
                                      height=self.panel_height,
                                      color=const.COLOR_PANEL_BG)
-        arcade.draw_rectangle_outline(center_x=self.panel_x + self.panel_width // 2,
-                                      center_y=self.panel_y + self.panel_height // 2,
+        arcade.draw_rectangle_outline(center_x=center_x,
+                                      center_y=center_y,
                                       width=self.panel_width,
                                       height=self.panel_height,
                                       color=arcade.color.BLACK,
@@ -269,8 +271,10 @@ class GameScreen:
     def draw_time_item(center_x, center_y, width, height, text, time,
                        text_color=const.COLOR_TEXT,
                        background_color=const.COLOR_PANEL_FG):
-        arcade.draw_rectangle_filled(center_x, center_y, width, height, background_color)
-        arcade.draw_rectangle_outline(center_x, center_y, width, height, arcade.color.BLACK)
+        arcade.draw_rectangle_filled(center_x, center_y, width, height,
+                                     background_color)
+        arcade.draw_rectangle_outline(center_x, center_y, width, height,
+                                      arcade.color.BLACK)
         arcade.draw_text(text=f'{text}:',
                          start_x=center_x,
                          start_y=center_y,
