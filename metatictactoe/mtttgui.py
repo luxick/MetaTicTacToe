@@ -1,13 +1,14 @@
-import arcade
 import sys
 import os
-import const
 
+import arcade
+
+import const
 from game_screen import GameScreen
 from start_screen import StartScreen
 from end_screen import EndScreen
-from util import Player, AppScreen
-from mttt import GameResult
+from util import AppScreen
+from mttt import Game, Player
 
 
 def resource_path(relative_path):
@@ -21,15 +22,17 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-class GameUI(arcade.Window):
+class GameUi(arcade.Window):
     screens = dict
     active_screen: AppScreen
-    player_1: Player
-    player_2: Player
-    game_result: GameResult
+
+    player1: Player
+    player2: Player
+    game: Game
 
     def __init__(self, width, height):
-        super().__init__(width, height, f'Meta Tic Tac Toe v{const.VERSION}', resizable=True)
+        title = f'Meta Tic Tac Toe v{const.VERSION}'
+        super().__init__(width, height, title, resizable=True)
         self.set_min_size(const.MIN_WIDTH, const.MIN_HEIGHT)
         self.background = None
 
@@ -43,11 +46,10 @@ class GameUI(arcade.Window):
         bg_path = resource_path('resources/background.jpg')
         self.background = arcade.load_texture(bg_path)
 
-        # TODO Create player objects from user input
-        self.player_1 = Player('PLAYER 1', 'X')
-        self.player_2 = Player('PLAYER 2', 'O')
+        self.player1 = Player('PLAYER 1')
+        self.player2 = Player('PLAYER 2')
+        self.game = Game(self.player1, self.player2)
 
-        self.game_result = None
         self.active_screen = AppScreen.Start
 
         for screen in self.screens.values():
@@ -63,7 +65,7 @@ class GameUI(arcade.Window):
         Render the screen.
         """
         # This command should happen before we start drawing. It will clear
-        # the screen to the background color, and erase what we drew last frame.
+        # the screen to the background color, and erase what we drew last frame
         arcade.start_render()
 
         # Draw the background
@@ -104,7 +106,7 @@ class GameUI(arcade.Window):
 
 def main():
     """ Main method """
-    game = GameUI(const.INITIAL_WIDTH, const.INITIAL_HEIGHT)
+    game = GameUi(const.INITIAL_WIDTH, const.INITIAL_HEIGHT)
     game.setup()
     arcade.run()
 

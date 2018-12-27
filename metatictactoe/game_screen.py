@@ -1,25 +1,15 @@
 import arcade
+
 import const
-from queue import Queue
-from util import Player, AppScreen
-from mttt import MetaTicTacToe, FieldTakenError, WrongBoardError, GameResult
+import mttt
+from util import AppScreen
 
 
 class GameScreen:
-    # The main game logic object
-    board: MetaTicTacToe
-
-    # Variables to hold game state
-    nxt_legal: tuple
-    play_queue: Queue
-    active_player: Player
-
-    # Variables for statistic
-    play_time: int
+    game: mttt.Game
 
     def __init__(self, app: 'mtttgui.GameUI'):
         self.app = app
-
         # Initialize position variables
         self.meta_x = 0
         self.meta_y = 0
@@ -34,13 +24,9 @@ class GameScreen:
         """
         Set up a new game board and players
         """
-        self.board = MetaTicTacToe()
-        self.nxt_legal = None
-        self.play_time = 0
-        self.play_queue = Queue(2)
-        self.play_queue.put(self.app.player_1)
-        self.play_queue.put(self.app.player_2)
-        self.active_player = self.play_queue.get()
+        self.game = mttt.Game(self.app.player1, self.app.player2)
+        self.game.next_player()
+        self.app.game = self.game
 
     def update(self, delta_time):
         """
@@ -48,8 +34,8 @@ class GameScreen:
         Normally, you'll call update() on the sprite lists that
         need it.
         """
-        self.play_time += delta_time
-        self.active_player.play_time += delta_time
+        self.game.state.play_time += delta_time
+        self.game.current_player().time += delta_time
 
     def on_resize(self, width, height):
         """
@@ -58,7 +44,8 @@ class GameScreen:
         """
         self.meta_size = round(min(width, height)) - 2 * const.MARGIN
 
-        overlap = width - self.meta_size - self.meta_size // 2 - 2 * const.MARGIN
+        margins = 2 * const.MARGIN
+        overlap = width - self.meta_size - self.meta_size // 2 - margins
         if overlap < 0:
             self.meta_size = self.meta_size + overlap
 
@@ -90,29 +77,20 @@ class GameScreen:
 
         # Run the game logic
         try:
-            nxt = self.board.mark(self.active_player.mark, *cords)
-        except WrongBoardError:
-            print(f'Must play in board: {self.nxt_legal}')
+            self.game.mark(*cords)
+        except mttt.WrongBoardError:
             return
-        except FieldTakenError:
-            print(f'Field {self.nxt_legal} id already marked')
+        except mttt.FieldTakenError:
             return
 
         # Check if the game has ended
-        finished = self.board.check_meta_winner()
-        if finished == "draw":
+        result = self.game.check_meta_board()
+        if result != mttt.Result.Ongoing:
             self.app.active_screen = AppScreen.End
-            self.app.game_result = GameResult.Draw
-            return
-        elif finished:
-            self.app.active_screen = AppScreen.End
-            self.app.game_result = GameResult.Won
             return
 
         # Prepare next turn
-        self.nxt_legal = nxt
-        self.play_queue.put(self.active_player)
-        self.active_player = self.play_queue.get()
+        self.game.next_player()
 
     def on_mouse_press(self, x, y, button, key_modifiers):
         """
@@ -150,7 +128,7 @@ class GameScreen:
                             width=item_width,
                             height=item_height,
                             text=text,
-                            time=self.play_time)
+                            time=self.game.state.play_time)
 
         # Draw current player mark
         x = self.panel_x + 75
@@ -159,7 +137,7 @@ class GameScreen:
 
         arcade.draw_rectangle_filled(x + size // 2, y + size // 2, size, size, arcade.color.LIGHT_BLUE)
         arcade.draw_rectangle_outline(x + size // 2, y + size // 2, size, size, arcade.color.BLACK)
-        self.draw_player_mark(self.active_player.mark, x, y, size)
+        self.draw_player_mark(self.game.current_player().mark, x, y, size)
 
         # Draw Player name above it
         item_y = y + size + 5 + item_height // 2
@@ -167,7 +145,7 @@ class GameScreen:
                                    center_y=item_y,
                                    width=item_width,
                                    height=item_height,
-                                   name=self.active_player.name)
+                                   name=self.game.current_player().name)
 
     def draw_game_area(self):
         # Draw the board outlines
@@ -181,18 +159,20 @@ class GameScreen:
                 color = self.board_color(bd, br)
 
                 # Check if the board was finished
-                winner = self.board.check_board_winner(bd, br)
-                if winner:
+                result = self.game.check_board(bd, br)
+                if result != mttt.Result.Ongoing:
                     arcade.draw_rectangle_filled(x + board_size // 2,
                                                  y + board_size // 2,
                                                  board_size, board_size,
                                                  arcade.color.WHITE)
-                    self.draw_player_mark(winner, x, y, board_size)
+                    self.draw_player_mark(result, x, y, board_size)
                     # Exit early if this board was already finished
                     continue
 
                 # Draw field outlines
-                self.draw_board(x, y, board_size, arcade.color.GRAY_BLUE, color, line_padding=0.03)
+                self.draw_board(x, y, board_size,
+                                arcade.color.GRAY_BLUE,
+                                color, line_padding=0.03)
 
                 field_size = board_size // 3
                 # Draw field contents
@@ -203,12 +183,13 @@ class GameScreen:
                         fx_center = fx + field_size // 2
                         fy_center = fy + field_size // 2
                         a, b, c, d = self.pos_to_grid_cell(fx_center, fy_center)
-                        content = self.board[a][b][c][d]
+                        content = self.game.state.board[a][b][c][d]
                         if content:
                             self.draw_player_mark(content, fx, fy, field_size)
 
         # Draw the meta board
-        self.draw_board(self.meta_x, self.meta_y, self.meta_size, arcade.color.BLACK, border_width=2)
+        self.draw_board(self.meta_x, self.meta_y, self.meta_size,
+                        arcade.color.BLACK, border_width=2)
 
         # Draw an outline around the game area
         arcade.draw_rectangle_outline(center_x=self.meta_x + self.meta_size / 2,
@@ -219,7 +200,8 @@ class GameScreen:
                                       border_width=2)
 
     def board_color(self, bd, br):
-        if not self.nxt_legal or self.nxt_legal == (bd, br):
+        nxt = self.game.state.next_board
+        if not nxt or nxt == (bd, br):
             return const.COLOR_VALID
         return const.COLOR_INVALID
 
@@ -245,8 +227,8 @@ class GameScreen:
         return True
 
     @staticmethod
-    def draw_player_mark(mark, x, y, size):
-        if mark == 'X':
+    def draw_player_mark(result, x, y, size):
+        if result == mttt.Result.PlayerOne:
 
             x_left = x + size * 0.125
             x_right = x_left + size * 0.75
@@ -258,21 +240,21 @@ class GameScreen:
                              end_y=y_high,
                              border_width=4,
                              color=arcade.color.BLACK)
-
             arcade.draw_line(start_x=x_left,
                              end_x=x_right,
                              start_y=y_high,
                              end_y=y_low,
                              border_width=4,
                              color=arcade.color.BLACK)
-        if mark == 'O':
+
+        elif result == mttt.Result.PlayerTwo:
             arcade.draw_circle_outline(center_x=x + size // 2,
                                        center_y=y + size // 2,
                                        radius=size * 0.4375,
                                        border_width=3,
                                        color=arcade.color.BLACK)
 
-        if mark == 'draw':
+        elif result == mttt.Result.Draw:
             arcade.draw_rectangle_filled(center_x=x + size // 2,
                                          center_y=y + size // 2,
                                          width=size,

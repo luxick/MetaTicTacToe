@@ -3,16 +3,6 @@ import arcade
 from const import KEY_CODES, COLOR_TRANSPARENT
 
 
-class Player:
-    """
-    Class to hold player data and the mark symbol used in the game logic
-    """
-    def __init__(self, name, mark):
-        self.name = name
-        self.mark = mark
-        self.play_time = 0.0
-
-
 class AppScreen(Enum):
     """
     All available screens of the application
@@ -22,7 +12,7 @@ class AppScreen(Enum):
     End = 2
 
 
-def check_mouse_press_for_buttons(x, y, button_list):
+def mouse_press_buttons(x, y, button_list):
     """ Given an x, y, see if we need to register any button clicks. """
     for button in button_list:
         if x > button.center_x + button.width / 2:
@@ -36,7 +26,7 @@ def check_mouse_press_for_buttons(x, y, button_list):
         button.on_press()
 
 
-def check_mouse_release_for_buttons(x, y, button_list):
+def mouse_release_buttons(x, y, button_list):
     """ If a mouse button has been released, see if we need to process
         any release events. """
     for button in button_list:
@@ -44,7 +34,7 @@ def check_mouse_release_for_buttons(x, y, button_list):
             button.on_release()
 
 
-def check_for_focused_input(x: int, y: int, input_list):
+def input_focused(x: int, y: int, input_list):
     """ Given an x, y, see if we need to register any input field clicks. """
     for text_input in input_list:
         if x > text_input.center_x + text_input.width / 2:
@@ -256,7 +246,7 @@ class TextInput:
 
 
 class PlayerNameInput(TextInput):
-    def __init__(self, player: Player):
+    def __init__(self, player):
         super().__init__(player.name, 18, "Arial")
         self.player = player
         self.default_text = player.name

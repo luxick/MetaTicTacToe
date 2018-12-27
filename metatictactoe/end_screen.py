@@ -1,7 +1,7 @@
 import arcade
-from mttt import GameResult
+from mttt import Result
 from util import AppScreen, RestartButton
-from util import check_mouse_press_for_buttons, check_mouse_release_for_buttons
+from util import mouse_press_buttons, mouse_release_buttons
 
 
 class EndScreen:
@@ -11,15 +11,16 @@ class EndScreen:
         self.app = app
 
     def setup(self):
-        self.buttons = {'restart_button': RestartButton(action_function=self._restart_game)}
+        self.buttons = {'restart_button': RestartButton(self._restart_game)}
 
     def on_draw(self):
         """
         Render the screen.
         """
-        if self.app.game_result == GameResult.Won:
-            # TODO Player objects should be in library and GameResult should return those as winners
-            winner = self.app.screens[AppScreen.Game].active_player.name
+        game = self.app.game  # type: mttt.Game
+        result = game.check_meta_board()
+        if result == Result.PlayerOne or result == Result.PlayerTwo:
+            winner = game.current_player().name
             arcade.draw_text(text=f'{winner} won the game!',
                              start_x=self.app.width // 2,
                              start_y=self.app.height // 2,
@@ -29,7 +30,7 @@ class EndScreen:
                              anchor_x="center",
                              anchor_y="center")
 
-        elif self.app.game_result == GameResult.Draw:
+        elif result == Result.Draw:
             arcade.draw_text(text=f'The game is a draw!',
                              start_x=self.app.width // 2,
                              start_y=self.app.height // 2,
@@ -77,13 +78,13 @@ class EndScreen:
         """
         Called when the user presses a mouse button.
         """
-        check_mouse_press_for_buttons(x, y, self.buttons.values())
+        mouse_press_buttons(x, y, self.buttons.values())
 
     def on_mouse_release(self, x, y, button, key_modifiers):
         """
         Called when a user releases a mouse button.
         """
-        check_mouse_release_for_buttons(x, y, self.buttons.values())
+        mouse_release_buttons(x, y, self.buttons.values())
 
     def _restart_game(self):
         self.app.active_screen = AppScreen.Start
