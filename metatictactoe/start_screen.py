@@ -69,7 +69,8 @@ class StartScreen:
         arcade.draw_text(text='(click to change name)',
                          start_x=self.app.width // 2,
                          start_y=self.player_2_y - 60,
-                         color=arcade.color.GRAY, width=self.app.width,
+                         color=const.COLOR_TEXT_MUTED,
+                         width=self.app.width,
                          font_size=14, align="center",
                          anchor_x="center", anchor_y="center")
 
@@ -106,7 +107,7 @@ class StartScreen:
         arcade.draw_text(text=title_text,
                          start_x=title_x,
                          start_y=title_y,
-                         color=arcade.color.BLACK,
+                         color=const.COLOR_TEXT,
                          align='center',
                          anchor_x='center',
                          anchor_y='center',

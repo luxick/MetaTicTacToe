@@ -43,7 +43,7 @@ class GameUi(arcade.Window):
 
     def setup(self):
         # Create your sprites and sprite lists here
-        bg_path = resource_path('resources/background.jpg')
+        bg_path = resource_path('resources/background.png')
         self.background = arcade.load_texture(bg_path)
 
         self.player1 = Player('PLAYER 1')
@@ -68,13 +68,16 @@ class GameUi(arcade.Window):
         arcade.start_render()
 
         # Draw the background
-        arcade.draw_texture_rectangle(center_x=self.width // 2,
-                                      center_y=self.height // 2,
-                                      width=self.width,
-                                      height=self.height,
-                                      texture=self.background,
-                                      repeat_count_x=1,
-                                      repeat_count_y=1)
+        tile_size = 100
+        for x in range(0, self.width + tile_size, tile_size):
+            for y in range(0, self.height + tile_size, tile_size):
+                arcade.draw_texture_rectangle(center_x=x - (tile_size // 2),
+                                              center_y=y - (tile_size // 2),
+                                              width=tile_size,
+                                              height=tile_size,
+                                              texture=self.background,
+                                              repeat_count_x=1,
+                                              repeat_count_y=1)
 
         self.screens[self.active_screen].on_draw()
 

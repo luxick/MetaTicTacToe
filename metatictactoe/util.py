@@ -1,6 +1,6 @@
 from enum import Enum
 import arcade
-from const import KEY_CODES, COLOR_TRANSPARENT
+import const
 
 
 class AppScreen(Enum):
@@ -56,8 +56,8 @@ class TextButton:
                  text,
                  font_size=18,
                  font_face="Arial",
-                 face_color=arcade.color.LIGHT_GRAY,
-                 highlight_color=arcade.color.WHITE,
+                 face_color=const.COLOR_BUTTON,
+                 highlight_color=const.COLOR_BUTTON_PRESSED,
                  shadow_color=arcade.color.GRAY,
                  button_height=2):
         self.center_x = 0
@@ -159,7 +159,7 @@ class TextInput:
                  font_face="Arial",
                  max_chars=12,
                  focused_bg=arcade.color.LIGHT_BLUE,
-                 unfocused_bg=COLOR_TRANSPARENT,
+                 unfocused_bg=const.COLOR_TRANSPARENT,
                  box_weight=2):
         self.center_x = 0
         self.center_y = 0
@@ -229,8 +229,8 @@ class TextInput:
         """
         if key == arcade.key.BACKSPACE:
             self.text = self.text[:-1]
-        if key in KEY_CODES and len(self.text) <= self.max_chars:
-            self.text += KEY_CODES[key]
+        if key in const.KEY_CODES and len(self.text) <= self.max_chars:
+            self.text += const.KEY_CODES[key]
 
     def on_key_release(self, key, key_modifiers):
         """

@@ -1,5 +1,7 @@
 import arcade
-from mttt import Result
+
+import const
+from mttt import Result, Player
 from util import AppScreen, RestartButton
 from util import mouse_press_buttons, mouse_release_buttons
 
@@ -9,6 +11,7 @@ class EndScreen:
 
     def __init__(self, app: 'mtttgui.GameUI'):
         self.app = app
+        self.base_y = 0
 
     def setup(self):
         self.buttons = {'restart_button': RestartButton(self._restart_game)}
@@ -18,29 +21,87 @@ class EndScreen:
         Render the screen.
         """
         game = self.app.game  # type: mttt.Game
+
+        # Draw the background panel
+        arcade.draw_rectangle_filled(center_x=self.app.width // 2,
+                                     center_y=self.app.height // 2,
+                                     width=self.app.width * 0.85,
+                                     height=self.app.height * 0.85,
+                                     color=const.COLOR_PANEL_BG)
+        arcade.draw_rectangle_outline(center_x=self.app.width // 2,
+                                      center_y=self.app.height // 2,
+                                      width=self.app.width * 0.85,
+                                      height=self.app.height * 0.85,
+                                      color=arcade.color.BLACK)
+
         result = game.check_meta_board()
+
         if result == Result.PlayerOne or result == Result.PlayerTwo:
-            winner = game.current_player().name
-            arcade.draw_text(text=f'{winner} won the game!',
-                             start_x=self.app.width // 2,
-                             start_y=self.app.height // 2,
-                             color=arcade.color.BLACK,
-                             font_size=30,
-                             align="center",
-                             anchor_x="center",
-                             anchor_y="center")
+            name = self.app.game.current_player().name
+            message = f'Winner: {name}'
+            self.draw_header(message)
 
         elif result == Result.Draw:
-            arcade.draw_text(text=f'The game is a draw!',
-                             start_x=self.app.width // 2,
-                             start_y=self.app.height // 2,
-                             color=arcade.color.BLACK,
-                             font_size=30,
-                             align="center",
-                             anchor_x="center",
-                             anchor_y="center")
+            message = f'The Game Is A Draw'
+            self.draw_header(message)
+
+        center_y = self.base_y + 140
+        self.draw_player_stats(center_y, self.app.player1)
+
+        center_y += 55
+        self.draw_player_stats(center_y, self.app.player2)
 
         self.buttons['restart_button'].draw()
+
+    def draw_header(self, message: str):
+        text_center_x = self.app.width // 2
+        text_center_y = self.app.height * 0.75
+        arcade.draw_text(text=message,
+                         start_x=text_center_x,
+                         start_y=text_center_y,
+                         color=const.COLOR_TEXT,
+                         font_size=40,
+                         align="center",
+                         anchor_x="center",
+                         anchor_y="center")
+
+    def draw_player_stats(self, center_y: int, player: Player):
+        center_x = self.app.width // 2
+        width = self.app.width * 0.85
+        height = 50
+        arcade.draw_rectangle_filled(center_x=center_x,
+                                     center_y=center_y,
+                                     width=width,
+                                     height=height,
+                                     color=const.COLOR_PANEL_FG)
+
+        arcade.draw_rectangle_outline(center_x=center_x,
+                                      center_y=center_y,
+                                      width=width,
+                                      height=height,
+                                      color=arcade.color.BLACK)
+
+        arcade.draw_text(text=f'{player.name}',
+                         start_x=center_x,
+                         start_y=center_y,
+                         width=width * 0.8,
+                         align='left',
+                         anchor_x='center',
+                         anchor_y='center',
+                         color=const.COLOR_TEXT)
+
+        time = player.time
+        minutes = int(time) // 60
+        seconds = int(time) % 60
+        time_string = 'Playtime: {:02}:{:02}'.format(minutes, seconds)
+        arcade.draw_text(text=time_string,
+                         start_x=center_x,
+                         start_y=center_y,
+                         width=width * 0.8,
+                         align='right',
+                         anchor_x='center',
+                         anchor_y='center',
+                         color=const.COLOR_TEXT)
 
     def update(self, delta_time):
         """
@@ -51,7 +112,12 @@ class EndScreen:
         pass
 
     def on_resize(self, width, height):
-        self.buttons['restart_button'].update_position(width // 2, height // 4, 200, 40)
+        self.base_y = height - height * 0.85
+        self.buttons['restart_button']\
+            .update_position(center_x=width // 2,
+                             center_y=self.base_y + 30,
+                             width=200,
+                             height=40)
 
     def on_key_press(self, key, key_modifiers):
         """

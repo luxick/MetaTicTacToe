@@ -137,8 +137,10 @@ class GameScreen:
         y = self.panel_y + 5
         size = self.panel_width - 150
 
-        arcade.draw_rectangle_filled(x + size // 2, y + size // 2, size, size, arcade.color.LIGHT_BLUE)
-        arcade.draw_rectangle_outline(x + size // 2, y + size // 2, size, size, arcade.color.BLACK)
+        arcade.draw_rectangle_filled(x + size // 2, y + size // 2, size, size,
+                                     const.COLOR_PANEL_FG)
+        arcade.draw_rectangle_outline(x + size // 2, y + size // 2, size, size,
+                                      arcade.color.BLACK)
         self.draw_player_mark(self.game.current_player().mark, x, y, size)
 
         # Draw Player name above it
@@ -166,7 +168,7 @@ class GameScreen:
                     arcade.draw_rectangle_filled(x + board_size // 2,
                                                  y + board_size // 2,
                                                  board_size, board_size,
-                                                 arcade.color.WHITE)
+                                                 const.COLOR_PANEL_BG)
                     self.draw_player_mark(result, x, y, board_size)
                     # Exit early if this board was already finished
                     continue
@@ -265,7 +267,8 @@ class GameScreen:
 
     @staticmethod
     def draw_time_item(center_x, center_y, width, height, text, time,
-                       text_color=arcade.color.BLACK, background_color=arcade.color.LIGHT_BLUE):
+                       text_color=const.COLOR_TEXT,
+                       background_color=const.COLOR_PANEL_FG):
         arcade.draw_rectangle_filled(center_x, center_y, width, height, background_color)
         arcade.draw_rectangle_outline(center_x, center_y, width, height, arcade.color.BLACK)
         arcade.draw_text(text=f'{text}:',
@@ -290,9 +293,12 @@ class GameScreen:
 
     @staticmethod
     def draw_now_playing_item(center_x, center_y, width, height, name,
-                              text_color=arcade.color.BLACK, background_color=arcade.color.LIGHT_BLUE):
-        arcade.draw_rectangle_filled(center_x, center_y, width, height, background_color)
-        arcade.draw_rectangle_outline(center_x, center_y, width, height, arcade.color.BLACK)
+                              text_color=const.COLOR_TEXT,
+                              background_color=const.COLOR_PANEL_FG):
+        arcade.draw_rectangle_filled(center_x, center_y, width, height,
+                                     background_color)
+        arcade.draw_rectangle_outline(center_x, center_y, width, height,
+                                      arcade.color.BLACK)
         arcade.draw_text(text='Now Playing: ',
                          start_x=center_x,
                          start_y=center_y,
@@ -311,7 +317,8 @@ class GameScreen:
                          color=text_color)
 
     @staticmethod
-    def draw_board(pos_x, pos_y, size, color, bg_color=None, line_padding=0.0, border_width=1):
+    def draw_board(pos_x, pos_y, size, color, bg_color=None,
+                   line_padding=0.0, border_width=1):
         # Draw background
         if bg_color:
             arcade.draw_rectangle_filled(pos_x + size // 2,
