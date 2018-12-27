@@ -24,7 +24,9 @@ class GameScreen:
         """
         Set up a new game board and players
         """
-        self.game = mttt.Game(self.app.player1, self.app.player2)
+        initial_state = mttt.State([], self.app.player1, self.app.player2)
+        self.game = mttt.Game(initial_state)
+        self.game.reset_board()
         self.game.next_player()
         self.app.game = self.game
 
@@ -159,7 +161,7 @@ class GameScreen:
                 color = self.board_color(bd, br)
 
                 # Check if the board was finished
-                result = self.game.check_board(bd, br)
+                result = self.game.check_board_by_idx(bd, br)
                 if result != mttt.Result.Ongoing:
                     arcade.draw_rectangle_filled(x + board_size // 2,
                                                  y + board_size // 2,

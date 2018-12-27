@@ -8,7 +8,7 @@ from game_screen import GameScreen
 from start_screen import StartScreen
 from end_screen import EndScreen
 from util import AppScreen
-from mttt import Game, Player
+from mttt import Game, Player, State
 
 
 def resource_path(relative_path):
@@ -48,7 +48,6 @@ class GameUi(arcade.Window):
 
         self.player1 = Player('PLAYER 1')
         self.player2 = Player('PLAYER 2')
-        self.game = Game(self.player1, self.player2)
 
         self.active_screen = AppScreen.Start
 

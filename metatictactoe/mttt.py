@@ -34,6 +34,7 @@ class Player:
 
 @dataclass
 class State:
+    """State object to hold the complete state of the game"""
     board: list
     current_player: Player
     players: Queue
@@ -60,7 +61,7 @@ class Logic:
             # Player not checking in the right board
             raise WrongBoardError
 
-        result = Logic.check_board(state.board[board_x][board_y])
+        result = Game.check_board(state.board[board_x][board_y])
         if result is not Result.Ongoing:
             # The Board has already finished
             raise WrongBoardError
@@ -74,7 +75,7 @@ class Logic:
         state.next_board = (field_x, field_y)
 
         # Check if the next field mark is free choice
-        result = Logic.check_board(state.board[field_x][field_y])
+        result = Game.check_board(state.board[field_x][field_y])
         if result is not Result.Ongoing:
             state.next_board = None
 
@@ -86,7 +87,7 @@ class Logic:
         for x in range(3):
             for y in range(3):
                 board = meta[x][y]
-                result = Logic.check_board(board)
+                result = Game.check_board(board)
                 if result == Result.Ongoing:
                     result = None
                 meta[x][y] = result
@@ -102,7 +103,7 @@ class Logic:
         winner = Logic.check_diagonals(board)
         if winner:
             return Result(winner)
-        # No more 'None' entries left -> board is a draw
+        # No more 'None' entries left -> board is a drawexcecute
         still_open = set([y for x in board for y in x if y is None])
         if not still_open:
             return Result.Draw
@@ -141,23 +142,24 @@ class Logic:
         return board
 
 
-class Game:
-    def __init__(self, player1: Player, player2: Player):
-        self.logic = Logic()
-        board = self.logic.create_metaboard()
-        self.state = State(board, player1, player2)
-        self.next_player()
+class Game(Logic):
+    """Main game class. Use this class to execute the game logic"""
+    def __init__(self, state: State):
+        self.state = state
+
+    def reset_board(self):
+        self.state.board = self.create_metaboard()
 
     def mark(self,
              board_x: int, board_y: int,
              field_x: int, field_y: int) -> tuple:
-        return Logic.mark(self.state, board_x, board_y, field_x, field_y)
+        return super().mark(self.state, board_x, board_y, field_x, field_y)
 
-    def check_board(self, board_x: int, board_y: int):
-        return Logic.check_board(self.state.board[board_x][board_y])
+    def check_board_by_idx(self, board_x: int, board_y: int):
+        return super().check_board(self.state.board[board_x][board_y])
 
     def check_meta_board(self) -> Result:
-        return Logic.check_meta_board(self.state)
+        return super().check_meta_board(self.state)
 
     def current_player(self) -> Player:
         return self.state.current_player
@@ -167,3 +169,5 @@ class Game:
         nxt = self.state.players.get()
         self.state.current_player = nxt
         return nxt
+
+
