@@ -1,0 +1,31 @@
+image: archlinux
+packages:
+    - python-pip
+    - python-virtualenv
+    - rsync
+sources:
+    - https://git.sr.ht/~luxick/metatictactoe
+secrets:
+    - affec380-9ba0-482d-a98c-1f644de10b82
+environment:
+    deploy: deploy@luxick.de
+tasks:
+    - setup: |
+        cd metatictactoe
+        python -m virtualenv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+        pip install PyInstaller
+    - build: |
+        cd metatictactoe
+        source venv/bin/activate
+        pyinstaller mtttgui.spec --onefile
+    - deploy: |
+        cd metatictactoe/dist
+        sshopts="ssh -o StrictHostKeyChecking=no"
+        rsync --rsh="$sshopts" -rP ./* $deploy:deploys/metatictactoe
+
+triggers:
+    - action: email
+      condition: always
+      to: 'builds@pfand.ninja'
