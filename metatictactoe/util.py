@@ -57,7 +57,7 @@ class TextButton:
                  font_size=18,
                  font_face="Arial",
                  face_color=const.COLOR_BUTTON,
-                 highlight_color=const.COLOR_BUTTON_PRESSED,
+                 highlight_color=const.COLOR_BUTTON_HIGHLIGHT,
                  shadow_color=arcade.color.GRAY,
                  button_height=2):
         self.center_x = 0
