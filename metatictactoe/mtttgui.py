@@ -108,8 +108,11 @@ class GameUi(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         """ Called whenever the user presses a key. """
+        if key == arcade.key.ESCAPE:
+            self.set_fullscreen(False)
         if key == arcade.key.F:
             self.set_fullscreen(not self.fullscreen)
+
         self.screens[self.active_screen].on_key_press(key, modifiers)
 
 
