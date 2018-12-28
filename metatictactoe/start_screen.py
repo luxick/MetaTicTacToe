@@ -103,12 +103,25 @@ class StartScreen:
         self.app.active_screen = util.AppScreen.Game
 
     def _draw_title(self):
-        title_x = self.app.width // 2
-        title_y = self.app.height * 0.75
-        title_text = 'Meta Tic Tac Toe'
-        arcade.draw_text(text=title_text,
-                         start_x=title_x,
-                         start_y=title_y,
+        center_x = self.app.width // 2
+        center_y = self.app.height * 0.75
+        meta_x = center_x - 230
+        tail_x = center_x + 50
+
+        arcade.draw_text(text='Meta',
+                         start_x=meta_x,
+                         start_y=center_y,
+                         color=const.COLOR_TEXT_HIGHLIGHT,
+                         align='center',
+                         anchor_x='center',
+                         anchor_y='center',
+                         font_size=35,
+                         font_name=const.FONT,
+                         rotation=35)
+
+        arcade.draw_text(text='TicTacToe',
+                         start_x=tail_x,
+                         start_y=center_y,
                          color=const.COLOR_TEXT,
                          align='center',
                          anchor_x='center',
