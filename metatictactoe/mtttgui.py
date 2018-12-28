@@ -2,6 +2,7 @@ import sys
 import os
 
 import arcade
+import pyglet
 
 import const
 from game_screen import GameScreen
@@ -108,6 +109,7 @@ class GameUi(arcade.Window):
 
 def main():
     """ Main method """
+    pyglet.font.add_file(resource_path('resources/font.ttf'))
     game = GameUi(const.INITIAL_WIDTH, const.INITIAL_HEIGHT)
     game.setup()
     arcade.run()

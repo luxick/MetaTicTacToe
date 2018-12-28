@@ -147,11 +147,18 @@ class GameScreen:
 
         # Draw Player name above it
         item_y = y + size + 5 + item_height // 2
-        self.draw_now_playing_item(center_x=item_x,
-                                   center_y=item_y,
-                                   width=item_width,
-                                   height=item_height,
-                                   name=self.game.current_player().name)
+        self.draw_text_item(center_x=item_x,
+                            center_y=item_y,
+                            width=item_width,
+                            height=item_height,
+                            text=self.game.current_player().name)
+
+        item_y = item_y + 5 + item_height
+        self.draw_text_item(center_x=item_x,
+                            center_y=item_y,
+                            width=item_width,
+                            height=item_height,
+                            text='Now Playing')
 
     def draw_game_area(self):
         # Draw the board outlines
@@ -282,7 +289,9 @@ class GameScreen:
                          align='left',
                          anchor_x='center',
                          anchor_y='center',
-                         color=text_color)
+                         color=text_color,
+                         font_size=12,
+                         font_name=const.FONT)
         minutes = int(time) // 60
         seconds = int(time) % 60
         time_string = '{:02}:{:02}'.format(minutes, seconds)
@@ -293,32 +302,37 @@ class GameScreen:
                          align='right',
                          anchor_x='center',
                          anchor_y='center',
-                         color=text_color)
+                         color=text_color,
+                         font_size=12,
+                         font_name=const.FONT)
 
     @staticmethod
-    def draw_now_playing_item(center_x, center_y, width, height, name,
-                              text_color=const.COLOR_TEXT,
-                              background_color=const.COLOR_PANEL_FG):
-        arcade.draw_rectangle_filled(center_x, center_y, width, height,
-                                     background_color)
-        arcade.draw_rectangle_outline(center_x, center_y, width, height,
-                                      arcade.color.BLACK)
-        arcade.draw_text(text='Now Playing: ',
+    def draw_text_item(center_x, center_y, width, height, text,
+                       text_color=const.COLOR_TEXT,
+                       background_color=const.COLOR_PANEL_FG):
+
+        arcade.draw_rectangle_filled(center_x=center_x,
+                                     center_y=center_y,
+                                     width=width,
+                                     height=height,
+                                     color=background_color)
+
+        arcade.draw_rectangle_outline(center_x=center_x,
+                                      center_y=center_y,
+                                      width=width,
+                                      height=height,
+                                      color=arcade.color.BLACK)
+
+        arcade.draw_text(text=text,
                          start_x=center_x,
                          start_y=center_y,
                          width=width * 0.8,
-                         align='left',
+                         align='center',
                          anchor_x='center',
                          anchor_y='center',
-                         color=text_color)
-        arcade.draw_text(text=name,
-                         start_x=center_x,
-                         start_y=center_y,
-                         width=width * 0.8,
-                         align='right',
-                         anchor_x='center',
-                         anchor_y='center',
-                         color=text_color)
+                         color=text_color,
+                         font_size=10,
+                         font_name=const.FONT)
 
     @staticmethod
     def draw_board(pos_x, pos_y, size, color, bg_color=None,

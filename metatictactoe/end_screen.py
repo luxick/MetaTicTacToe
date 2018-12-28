@@ -60,10 +60,11 @@ class EndScreen:
                          start_x=text_center_x,
                          start_y=text_center_y,
                          color=const.COLOR_TEXT,
-                         font_size=40,
+                         font_size=35,
                          align="center",
                          anchor_x="center",
-                         anchor_y="center")
+                         anchor_y="center",
+                         font_name=const.FONT)
 
     def draw_player_stats(self, center_y: int, player: Player):
         center_x = self.app.width // 2
@@ -89,7 +90,8 @@ class EndScreen:
                          align='left',
                          anchor_x='center',
                          anchor_y='center',
-                         color=const.COLOR_TEXT)
+                         color=const.COLOR_TEXT,
+                         font_name=const.FONT)
 
         time = player.time
         minutes = int(time) // 60
@@ -103,7 +105,8 @@ class EndScreen:
                          align='right',
                          anchor_x='center',
                          anchor_y='center',
-                         color=const.COLOR_TEXT)
+                         color=const.COLOR_TEXT,
+                         font_name=const.FONT)
 
     def update(self, delta_time):
         """

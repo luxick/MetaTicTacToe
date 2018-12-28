@@ -71,7 +71,9 @@ class StartScreen:
                          start_y=self.player_2_y - 60,
                          color=const.COLOR_TEXT_MUTED,
                          width=self.app.width,
-                         font_size=14, align="center",
+                         font_size=10,
+                         font_name=const.FONT,
+                         align="center",
                          anchor_x="center", anchor_y="center")
 
         self.buttons['start_button'].draw()
@@ -111,4 +113,5 @@ class StartScreen:
                          align='center',
                          anchor_x='center',
                          anchor_y='center',
-                         font_size=40)
+                         font_size=35,
+                         font_name=const.FONT)

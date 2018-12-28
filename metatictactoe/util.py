@@ -55,7 +55,7 @@ class TextButton:
     def __init__(self,
                  text,
                  font_size=18,
-                 font_face="Arial",
+                 font_face=const.FONT,
                  face_color=const.COLOR_BUTTON,
                  highlight_color=const.COLOR_BUTTON_HIGHLIGHT,
                  shadow_color=arcade.color.GRAY,
@@ -116,6 +116,7 @@ class TextButton:
 
         arcade.draw_text(self.text, x, y,
                          arcade.color.BLACK, font_size=self.font_size,
+                         font_name=self.font_face,
                          width=self.width, align="center",
                          anchor_x="center", anchor_y="center")
 
@@ -134,7 +135,7 @@ class TextButton:
 
 class StartGameButton(TextButton):
     def __init__(self, action_function):
-        super().__init__("Start Game", 18, "Arial")
+        super().__init__("Start Game", 18)
         self.action_function = action_function
 
     def on_release(self):
@@ -144,7 +145,7 @@ class StartGameButton(TextButton):
 
 class RestartButton(TextButton):
     def __init__(self, action_function):
-        super().__init__("Restart", 18, "Arial")
+        super().__init__("Restart", 18)
         self.action_function = action_function
 
     def on_release(self):
@@ -156,7 +157,7 @@ class TextInput:
     def __init__(self,
                  text,
                  font_size=18,
-                 font_face="Arial",
+                 font_face=const.FONT,
                  max_chars=12,
                  focused_bg=arcade.color.LIGHT_BLUE,
                  unfocused_bg=const.COLOR_TRANSPARENT,
@@ -211,6 +212,7 @@ class TextInput:
 
         arcade.draw_text(text, self.center_x, self.center_y,
                          arcade.color.BLACK, font_size=self.font_size,
+                         font_name=self.font_face,
                          width=self.width, align="center",
                          anchor_x="center", anchor_y="center")
 
@@ -247,7 +249,7 @@ class TextInput:
 
 class PlayerNameInput(TextInput):
     def __init__(self, player):
-        super().__init__(player.name, 18, "Arial")
+        super().__init__(player.name, 18)
         self.player = player
         self.default_text = player.name
 

@@ -22,6 +22,8 @@ COLOR_BUTTON_HIGHLIGHT = 255, 255, 255
 
 COLOR_TRANSPARENT = 0, 0, 0, 0
 
+FONT = ('Arcade Normal', 'Arial')
+
 KEY_CODES = {
     97: 'A',
     98: 'B',
