@@ -290,7 +290,7 @@ class GameScreen:
                          anchor_x='center',
                          anchor_y='center',
                          color=text_color,
-                         font_size=12,
+                         font_size=14,
                          font_name=const.FONT)
         minutes = int(time) // 60
         seconds = int(time) % 60
@@ -303,7 +303,7 @@ class GameScreen:
                          anchor_x='center',
                          anchor_y='center',
                          color=text_color,
-                         font_size=12,
+                         font_size=14,
                          font_name=const.FONT)
 
     @staticmethod
@@ -331,7 +331,7 @@ class GameScreen:
                          anchor_x='center',
                          anchor_y='center',
                          color=text_color,
-                         font_size=10,
+                         font_size=14,
                          font_name=const.FONT)
 
     @staticmethod
