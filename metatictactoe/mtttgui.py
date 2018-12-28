@@ -44,7 +44,7 @@ class GameUi(arcade.Window):
 
     def setup(self):
         # Create your sprites and sprite lists here
-        bg_path = resource_path('resources/background.png')
+        bg_path = resource_path('resources/bg_pentagon.png')
         self.background = arcade.load_texture(bg_path)
 
         self.player1 = Player('PLAYER 1')
@@ -69,7 +69,7 @@ class GameUi(arcade.Window):
         arcade.start_render()
 
         # Draw the background
-        tile_size = 100
+        tile_size = 400
         for x in range(0, self.width + tile_size, tile_size):
             for y in range(0, self.height + tile_size, tile_size):
                 arcade.draw_texture_rectangle(center_x=x - (tile_size // 2),
