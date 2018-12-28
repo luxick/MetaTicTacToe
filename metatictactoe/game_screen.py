@@ -251,20 +251,20 @@ class GameScreen:
                              end_x=x_right,
                              start_y=y_low,
                              end_y=y_high,
-                             border_width=4,
+                             border_width=6,
                              color=arcade.color.BLACK)
             arcade.draw_line(start_x=x_left,
                              end_x=x_right,
                              start_y=y_high,
                              end_y=y_low,
-                             border_width=4,
+                             border_width=6,
                              color=arcade.color.BLACK)
 
         elif result == mttt.Result.PlayerTwo:
             arcade.draw_circle_outline(center_x=x + size // 2,
                                        center_y=y + size // 2,
                                        radius=size * 0.4375,
-                                       border_width=3,
+                                       border_width=6,
                                        color=arcade.color.BLACK)
 
         elif result == mttt.Result.Draw:
