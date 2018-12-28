@@ -22,6 +22,8 @@ COLOR_BUTTON_HIGHLIGHT = 255, 255, 255
 
 COLOR_TRANSPARENT = 0, 0, 0, 0
 
+BG_FILE = 'bg_pentagon.png'
+
 FONT = ('Arcade Normal', 'Arial')
 
 KEY_CODES = {

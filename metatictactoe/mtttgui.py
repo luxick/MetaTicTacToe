@@ -44,7 +44,7 @@ class GameUi(arcade.Window):
 
     def setup(self):
         # Create your sprites and sprite lists here
-        bg_path = resource_path('resources/bg_pentagon.png')
+        bg_path = resource_path(f'resources/{const.BG_FILE}')
         self.background = arcade.load_texture(bg_path)
 
         self.player1 = Player('PLAYER 1')
