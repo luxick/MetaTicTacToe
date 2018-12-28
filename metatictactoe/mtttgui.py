@@ -33,7 +33,9 @@ class GameUi(arcade.Window):
 
     def __init__(self, width, height):
         title = f'Meta Tic Tac Toe v{const.VERSION}'
-        super().__init__(width, height, title, resizable=True)
+        super().__init__(width, height, title,
+                         resizable=True,
+                         fullscreen=True)
         self.set_min_size(const.MIN_WIDTH, const.MIN_HEIGHT)
         self.background = None
 
@@ -106,6 +108,8 @@ class GameUi(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         """ Called whenever the user presses a key. """
+        if key == arcade.key.F:
+            self.set_fullscreen(not self.fullscreen)
         self.screens[self.active_screen].on_key_press(key, modifiers)
 
 
