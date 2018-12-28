@@ -3,6 +3,7 @@ packages:
     - python-pip
     - python-virtualenv
     - rsync
+    - tk
 sources:
     - https://git.sr.ht/~luxick/metatictactoe
 secrets:
