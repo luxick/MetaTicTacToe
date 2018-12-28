@@ -87,6 +87,8 @@ class StartScreen:
             self.focused_input.on_focus_lost()
         self.focused_input = text_input
 
+        self.app.unfocused = not bool(text_input)
+
     def on_mouse_release(self, x, y, button, key_modifiers):
         util.mouse_release_buttons(x, y, self.buttons.values())
 
@@ -95,6 +97,7 @@ class StartScreen:
             if key == arcade.key.ENTER or key == arcade.key.ESCAPE:
                 self.focused_input.on_focus_lost()
                 self.focused_input = None
+                self.app.unfocused = True
             else:
                 self.focused_input.on_key_press(key, modifiers)
 
@@ -105,7 +108,7 @@ class StartScreen:
     def _draw_title(self):
         center_x = self.app.width // 2
         center_y = self.app.height * 0.75
-        meta_x = center_x - 230
+        meta_x = center_x - 250
         tail_x = center_x + 50
 
         arcade.draw_text(text='Meta',
@@ -115,7 +118,7 @@ class StartScreen:
                          align='center',
                          anchor_x='center',
                          anchor_y='center',
-                         font_size=35,
+                         font_size=45,
                          font_name=const.FONT,
                          rotation=35)
 

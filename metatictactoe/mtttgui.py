@@ -38,6 +38,7 @@ class GameUi(arcade.Window):
                          fullscreen=True)
         self.set_min_size(const.MIN_WIDTH, const.MIN_HEIGHT)
         self.background = None
+        self.unfocused = True
 
         # Create application screens
         self.screens = {AppScreen.Start: StartScreen(self),
@@ -108,10 +109,11 @@ class GameUi(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         """ Called whenever the user presses a key. """
-        if key == arcade.key.ESCAPE:
-            self.set_fullscreen(False)
-        if key == arcade.key.F:
-            self.set_fullscreen(not self.fullscreen)
+        if self.unfocused:
+            if key == arcade.key.ESCAPE:
+                self.set_fullscreen(False)
+            if key == arcade.key.F:
+                self.set_fullscreen(not self.fullscreen)
 
         self.screens[self.active_screen].on_key_press(key, modifiers)
 
