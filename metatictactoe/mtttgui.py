@@ -9,7 +9,7 @@ from game_screen import GameScreen
 from start_screen import StartScreen
 from end_screen import EndScreen
 from util import AppScreen
-from mttt import Game, Player, State
+from mttt import Game, Player
 
 
 def resource_path(relative_path):
@@ -69,7 +69,7 @@ class GameUi(arcade.Window):
         arcade.start_render()
 
         # Draw the background
-        tile_size = 400
+        tile_size = self.background.width
         for x in range(0, self.width + tile_size, tile_size):
             for y in range(0, self.height + tile_size, tile_size):
                 arcade.draw_texture_rectangle(center_x=x - (tile_size // 2),
@@ -94,13 +94,15 @@ class GameUi(arcade.Window):
         """
         Called when the user presses a mouse button.
         """
-        self.screens[self.active_screen].on_mouse_press(x, y, button, key_modifiers)
+        self.screens[self.active_screen]\
+            .on_mouse_press(x, y, button, key_modifiers)
 
     def on_mouse_release(self, x, y, button, key_modifiers):
         """
         Called when a user releases a mouse button.
         """
-        self.screens[self.active_screen].on_mouse_release(x, y, button, key_modifiers)
+        self.screens[self.active_screen]\
+            .on_mouse_release(x, y, button, key_modifiers)
 
     def on_key_press(self, key, modifiers):
         """ Called whenever the user presses a key. """
