@@ -27,7 +27,6 @@ class GameScreen:
         initial_state = mttt.State([], self.app.player1, self.app.player2)
         self.game = mttt.Game(initial_state)
         self.game.reset_board()
-        self.game.next_player()
         self.app.game = self.game
 
     def update(self, delta_time):
