@@ -4,12 +4,16 @@ import sys
 import os
 sys.path.insert(0, os.path.join(SPECPATH, 'metatictactoe'))
 from const import VERSION
+import platform
 
 datas = [
     ('metatictactoe/resources', 'resources')
 ]
 
 block_cipher = None
+
+uname = platform.uname()
+pkg_name = f'metatictactoe-{VERSION}-{uname.system.lower()}-{uname.machine}'
 
 
 a = Analysis(['metatictactoe/mtttgui.py'],
@@ -32,7 +36,7 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name=f'metatictactoe-{VERSION}',
+          name=pkg_name,
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
